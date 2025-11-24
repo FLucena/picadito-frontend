@@ -7,11 +7,15 @@ import {
   User,
   MapPin,
   Menu,
-  X
+  X,
+  Bell,
+  BarChart3,
+  Tag
 } from 'lucide-react';
 import type { Page } from '../../App';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { AlertasPanel } from '../AlertasPanel';
 
 interface SidebarProps {
   currentPage: Page;
@@ -19,6 +23,8 @@ interface SidebarProps {
   partidosGuardadosCount?: number;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  usuarioId?: number;
+  onNavigateToPartido?: (partidoId: number) => void;
 }
 
 interface NavItem {
@@ -34,7 +40,9 @@ export const Sidebar = ({
   onNavigate, 
   partidosGuardadosCount = 0,
   isCollapsed = false,
-  onToggleCollapse
+  onToggleCollapse,
+  usuarioId = 1,
+  onNavigateToPartido
 }: SidebarProps) => {
   const navItems: NavItem[] = [
     { id: 'ver-partidos', label: 'Ver Partidos', icon: Calendar, group: 'main' },
@@ -43,6 +51,8 @@ export const Sidebar = ({
     { id: 'historial-inscripciones', label: 'Historial', icon: History, group: 'secondary' },
     { id: 'gestionar-jugadores', label: 'Jugadores', icon: User, group: 'secondary' },
     { id: 'gestionar-sedes', label: 'Sedes', icon: MapPin, group: 'secondary' },
+    { id: 'gestionar-categorias', label: 'Categorías', icon: Tag, group: 'admin' },
+    { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3, group: 'admin' },
   ];
 
   const isActive = (pageId: Page) => {
@@ -54,6 +64,7 @@ export const Sidebar = ({
 
   const mainItems = navItems.filter(item => item.group === 'main');
   const secondaryItems = navItems.filter(item => item.group === 'secondary');
+  const adminItems = navItems.filter(item => item.group === 'admin');
 
   return (
     <aside
@@ -66,17 +77,24 @@ export const Sidebar = ({
         {!isCollapsed && (
           <h2 className="text-lg font-semibold text-gray-900">Picadito</h2>
         )}
-        {onToggleCollapse && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="ml-auto"
-            aria-label={isCollapsed ? 'Expandir' : 'Colapsar'}
-          >
-            {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
-          </Button>
-        )}
+        <div className="flex items-center gap-2 ml-auto">
+          {!isCollapsed && usuarioId && (
+            <AlertasPanel
+              usuarioId={usuarioId}
+              onNavigateToPartido={onNavigateToPartido}
+            />
+          )}
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              aria-label={isCollapsed ? 'Expandir' : 'Colapsar'}
+            >
+              {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -115,32 +133,63 @@ export const Sidebar = ({
 
         {/* Secondary Items */}
         {!isCollapsed && (
-          <div className="pt-4 border-t border-gray-200">
-            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Más opciones
-            </p>
-            <div className="space-y-1">
-              {secondaryItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.id);
-                
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => onNavigate(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${
-                      active
-                        ? 'bg-primary-50 text-primary-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className={`h-5 w-5 flex-shrink-0 ${active ? 'text-primary-600' : ''}`} />
-                    <span className="flex-1">{item.label}</span>
-                  </button>
-                );
-              })}
+          <>
+            <div className="pt-4 border-t border-gray-200">
+              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Más opciones
+              </p>
+              <div className="space-y-1">
+                {secondaryItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.id);
+                  
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => onNavigate(item.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${
+                        active
+                          ? 'bg-primary-50 text-primary-700 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className={`h-5 w-5 flex-shrink-0 ${active ? 'text-primary-600' : ''}`} />
+                      <span className="flex-1">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+            {/* Admin Items */}
+            {adminItems.length > 0 && (
+              <div className="pt-4 border-t border-gray-200">
+                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Administración
+                </p>
+                <div className="space-y-1">
+                  {adminItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => onNavigate(item.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${
+                          active
+                            ? 'bg-primary-50 text-primary-700 font-medium'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 flex-shrink-0 ${active ? 'text-primary-600' : ''}`} />
+                        <span className="flex-1">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </nav>
     </aside>

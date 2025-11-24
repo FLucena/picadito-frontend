@@ -5,6 +5,8 @@ import { CreatePartidoPage } from './pages/CreatePartidoPage';
 import { EditPartidoPage } from './pages/EditPartidoPage';
 import { GestionarJugadoresPage } from './pages/GestionarJugadoresPage';
 import { GestionarSedesPage } from './pages/GestionarSedesPage';
+import { GestionarCategoriasPage } from './pages/GestionarCategoriasPage';
+import { EstadisticasPage } from './pages/EstadisticasPage';
 import { MisPartidosPage } from './pages/MisPartidosPage';
 import { HistorialInscripcionesPage } from './pages/HistorialInscripcionesPage';
 import { PartidoDetailPage } from './pages/PartidoDetailPage';
@@ -21,6 +23,8 @@ export type Page =
   | 'editar-partido'
   | 'gestionar-jugadores'
   | 'gestionar-sedes'
+  | 'gestionar-categorias'
+  | 'estadisticas'
   | 'mis-partidos'
   | 'historial-inscripciones'
   | 'partido-detail';
@@ -65,6 +69,12 @@ function App() {
       case 'gestionar-sedes':
         setCurrentPage('gestionar-sedes');
         break;
+      case 'gestionar-categorias':
+        setCurrentPage('gestionar-categorias');
+        break;
+      case 'estadisticas':
+        setCurrentPage('estadisticas');
+        break;
       case 'mis-partidos':
         setCurrentPage('mis-partidos');
         break;
@@ -79,11 +89,6 @@ function App() {
   const handleViewPartidoDetails = (id: number) => {
     setSelectedPartidoId(id);
     setCurrentPage('partido-detail');
-  };
-
-  const handleEditPartido = (id: number) => {
-    setEditingPartidoId(id);
-    setCurrentPage('editar-partido');
   };
 
   const handleBackToMenu = () => {
@@ -105,6 +110,8 @@ function App() {
           partidosGuardadosCount={partidosGuardadosCount}
           isCollapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          usuarioId={usuarioId}
+          onNavigateToPartido={handleViewPartidoDetails}
         />
       )}
 
@@ -126,7 +133,6 @@ function App() {
               onBack={handleBackToMenu}
               onCreatePartido={() => setCurrentPage('crear-partido')}
               onViewPartidoDetails={handleViewPartidoDetails}
-              onEditPartido={handleEditPartido}
               usuarioId={usuarioId}
             />
           )}
@@ -154,11 +160,19 @@ function App() {
           )}
 
           {currentPage === 'gestionar-jugadores' && (
-            <GestionarJugadoresPage onBack={handleBackToMenu} />
+            <GestionarJugadoresPage />
           )}
 
           {currentPage === 'gestionar-sedes' && (
-            <GestionarSedesPage onBack={handleBackToMenu} />
+            <GestionarSedesPage />
+          )}
+
+          {currentPage === 'gestionar-categorias' && (
+            <GestionarCategoriasPage />
+          )}
+
+          {currentPage === 'estadisticas' && (
+            <EstadisticasPage />
           )}
 
           {currentPage === 'mis-partidos' && (

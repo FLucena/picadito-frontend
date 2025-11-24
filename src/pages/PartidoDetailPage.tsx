@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, Edit, Trash2, User } from 'lucide-react';
+import { Calendar, MapPin, Users, Edit, Trash2, User, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -10,6 +10,9 @@ import { ParticipanteForm } from '../components/ParticipanteForm';
 import { ParticipanteList } from '../components/ParticipanteList';
 import { CanchaVisualization } from '../components/CanchaVisualization';
 import { PartidoForm } from '../components/PartidoForm';
+import { CategoriaBadge } from '../components/CategoriaBadge';
+import { CalificacionDisplay } from '../components/CalificacionDisplay';
+import { EquiposDisplay } from '../components/EquiposDisplay';
 import { usePartido, useUpdatePartido, useDeletePartido } from '../hooks/usePartidos';
 import { useParticipantes, useInscribirse, useDesinscribirse } from '../hooks/useParticipantes';
 import {
@@ -167,11 +170,22 @@ export const PartidoDetailPage = ({
         <Card className="mb-6" variant="default">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
                 <h1 className="text-2xl lg:text-3xl font-medium text-gray-900">{partido.titulo}</h1>
                 <Badge variant={getEstadoVariant(partido.estado)} size="md">
                   {getEstadoLabel(partido.estado)}
                 </Badge>
+                {partido.categoria && (
+                  <CategoriaBadge categoria={partido.categoria} size="md" />
+                )}
+                {partido.promedioCalificacion && (
+                  <div className="flex items-center gap-1 text-yellow-500">
+                    <Star className="h-5 w-5 fill-current" />
+                    <span className="text-sm font-medium text-gray-700">
+                      {partido.promedioCalificacion.toFixed(1)}
+                    </span>
+                  </div>
+                )}
               </div>
               {partido.descripcion && (
                 <p className="text-gray-600 leading-relaxed">{partido.descripcion}</p>
@@ -315,6 +329,28 @@ export const PartidoDetailPage = ({
                       />
                     )}
                   </>
+                ),
+              },
+              {
+                id: 'equipos',
+                label: 'Equipos',
+                content: (
+                  <EquiposDisplay
+                    partidoId={partidoId}
+                    cantidadParticipantes={partido.cantidadParticipantes}
+                    maxJugadores={partido.maxJugadores}
+                  />
+                ),
+              },
+              {
+                id: 'calificaciones',
+                label: 'Calificaciones',
+                content: (
+                  <CalificacionDisplay
+                    partidoId={partidoId}
+                    showPromedio={true}
+                    showResenas={true}
+                  />
                 ),
               },
             ]}

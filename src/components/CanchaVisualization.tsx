@@ -82,13 +82,30 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 1, x: 20, y: 35, fila: 1 }, // Defensa 1
         { equipo: 1, x: 20, y: 65, fila: 1 }, // Defensa 2
         { equipo: 1, x: 35, y: 50, fila: 2 }, // Mediocampista
-        { equipo: 1, x: 50, y: 50, fila: 3 }, // Delantero
+        { equipo: 1, x: 45, y: 50, fila: 3 }, // Delantero
         // Equipo 2 (derecha)
         { equipo: 2, x: 92, y: 50, fila: 0 }, // Portero
         { equipo: 2, x: 80, y: 35, fila: 1 }, // Defensa 1
         { equipo: 2, x: 80, y: 65, fila: 1 }, // Defensa 2
         { equipo: 2, x: 65, y: 50, fila: 2 }, // Mediocampista
-        { equipo: 2, x: 50, y: 50, fila: 3 }, // Delantero
+        { equipo: 2, x: 55, y: 50, fila: 3 }, // Delantero
+      ],
+    });
+    // 5 vs 5: 1-1-2-1 (Portero, 1 defensa, 2 mediocampistas, 1 delantero)
+    formations.push({
+      name: '1-1-2-1',
+      label: '1-1-2-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 32, y: 40, fila: 2 },
+        { equipo: 1, x: 32, y: 60, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 68, y: 40, fila: 2 },
+        { equipo: 2, x: 68, y: 60, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
   } else if (jugadoresPorEquipo === 6) {
@@ -108,6 +125,25 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 80, y: 65, fila: 1 },
         { equipo: 2, x: 65, y: 40, fila: 2 },
         { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 58, y: 50, fila: 3 },
+      ],
+    });
+    // 6 vs 6: 1-3-1-1
+    formations.push({
+      name: '1-3-1-1',
+      label: '1-3-1-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 30, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 70, fila: 1 },
+        { equipo: 1, x: 35, y: 50, fila: 2 },
+        { equipo: 1, x: 42, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 30, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 70, fila: 1 },
+        { equipo: 2, x: 65, y: 50, fila: 2 },
         { equipo: 2, x: 58, y: 50, fila: 3 },
       ],
     });
@@ -154,6 +190,27 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 58, y: 50, fila: 3 },
       ],
     });
+    // 7 vs 7: 1-4-1-1
+    formations.push({
+      name: '1-4-1-1',
+      label: '1-4-1-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 25, fila: 1 },
+        { equipo: 1, x: 20, y: 40, fila: 1 },
+        { equipo: 1, x: 20, y: 60, fila: 1 },
+        { equipo: 1, x: 20, y: 75, fila: 1 },
+        { equipo: 1, x: 35, y: 50, fila: 2 },
+        { equipo: 1, x: 42, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 25, fila: 1 },
+        { equipo: 2, x: 80, y: 40, fila: 1 },
+        { equipo: 2, x: 80, y: 60, fila: 1 },
+        { equipo: 2, x: 80, y: 75, fila: 1 },
+        { equipo: 2, x: 65, y: 50, fila: 2 },
+        { equipo: 2, x: 58, y: 50, fila: 3 },
+      ],
+    });
   } else if (jugadoresPorEquipo === 8) {
     // 8 vs 8: 1-3-3-1
     formations.push({
@@ -190,7 +247,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 1, x: 20, y: 75, fila: 1 },
         { equipo: 1, x: 35, y: 40, fila: 2 },
         { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 50, y: 50, fila: 3 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
         { equipo: 2, x: 92, y: 50, fila: 0 },
         { equipo: 2, x: 80, y: 25, fila: 1 },
         { equipo: 2, x: 80, y: 40, fila: 1 },
@@ -198,7 +255,53 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 80, y: 75, fila: 1 },
         { equipo: 2, x: 65, y: 40, fila: 2 },
         { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 50, y: 50, fila: 3 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+      ],
+    });
+    // 8 vs 8: 1-2-4-1
+    formations.push({
+      name: '1-2-4-1',
+      label: '1-2-4-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 40, fila: 1 },
+        { equipo: 1, x: 20, y: 60, fila: 1 },
+        { equipo: 1, x: 32, y: 25, fila: 2 },
+        { equipo: 1, x: 32, y: 40, fila: 2 },
+        { equipo: 1, x: 32, y: 60, fila: 2 },
+        { equipo: 1, x: 32, y: 75, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 40, fila: 1 },
+        { equipo: 2, x: 80, y: 60, fila: 1 },
+        { equipo: 2, x: 68, y: 25, fila: 2 },
+        { equipo: 2, x: 68, y: 40, fila: 2 },
+        { equipo: 2, x: 68, y: 60, fila: 2 },
+        { equipo: 2, x: 68, y: 75, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+      ],
+    });
+    // 8 vs 8: 1-5-1-1
+    formations.push({
+      name: '1-5-1-1',
+      label: '1-5-1-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 20, fila: 1 },
+        { equipo: 1, x: 20, y: 35, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 65, fila: 1 },
+        { equipo: 1, x: 20, y: 80, fila: 1 },
+        { equipo: 1, x: 35, y: 50, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 20, fila: 1 },
+        { equipo: 2, x: 80, y: 35, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 65, fila: 1 },
+        { equipo: 2, x: 80, y: 80, fila: 1 },
+        { equipo: 2, x: 65, y: 50, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
   } else if (jugadoresPorEquipo === 9) {
@@ -215,7 +318,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 1, x: 35, y: 30, fila: 2 },
         { equipo: 1, x: 35, y: 50, fila: 2 },
         { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 50, y: 50, fila: 3 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
         { equipo: 2, x: 92, y: 50, fila: 0 },
         { equipo: 2, x: 80, y: 25, fila: 1 },
         { equipo: 2, x: 80, y: 40, fila: 1 },
@@ -224,7 +327,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 65, y: 30, fila: 2 },
         { equipo: 2, x: 65, y: 50, fila: 2 },
         { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 50, y: 50, fila: 3 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
     // 9 vs 9: 1-3-4-1
@@ -240,7 +343,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 1, x: 35, y: 40, fila: 2 },
         { equipo: 1, x: 35, y: 60, fila: 2 },
         { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 50, y: 50, fila: 3 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
         { equipo: 2, x: 92, y: 50, fila: 0 },
         { equipo: 2, x: 80, y: 30, fila: 1 },
         { equipo: 2, x: 80, y: 50, fila: 1 },
@@ -249,7 +352,57 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 65, y: 40, fila: 2 },
         { equipo: 2, x: 65, y: 60, fila: 2 },
         { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 50, y: 50, fila: 3 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+      ],
+    });
+    // 9 vs 9: 1-4-2-2
+    formations.push({
+      name: '1-4-2-2',
+      label: '1-4-2-2',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 25, fila: 1 },
+        { equipo: 1, x: 20, y: 40, fila: 1 },
+        { equipo: 1, x: 20, y: 60, fila: 1 },
+        { equipo: 1, x: 20, y: 75, fila: 1 },
+        { equipo: 1, x: 35, y: 40, fila: 2 },
+        { equipo: 1, x: 35, y: 60, fila: 2 },
+        { equipo: 1, x: 42, y: 40, fila: 3 },
+        { equipo: 1, x: 42, y: 60, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 25, fila: 1 },
+        { equipo: 2, x: 80, y: 40, fila: 1 },
+        { equipo: 2, x: 80, y: 60, fila: 1 },
+        { equipo: 2, x: 80, y: 75, fila: 1 },
+        { equipo: 2, x: 65, y: 40, fila: 2 },
+        { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 58, y: 40, fila: 3 },
+        { equipo: 2, x: 58, y: 60, fila: 3 },
+      ],
+    });
+    // 9 vs 9: 1-5-2-1
+    formations.push({
+      name: '1-5-2-1',
+      label: '1-5-2-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 20, fila: 1 },
+        { equipo: 1, x: 20, y: 35, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 65, fila: 1 },
+        { equipo: 1, x: 20, y: 80, fila: 1 },
+        { equipo: 1, x: 35, y: 40, fila: 2 },
+        { equipo: 1, x: 35, y: 60, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 20, fila: 1 },
+        { equipo: 2, x: 80, y: 35, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 65, fila: 1 },
+        { equipo: 2, x: 80, y: 80, fila: 1 },
+        { equipo: 2, x: 65, y: 40, fila: 2 },
+        { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
   } else if (jugadoresPorEquipo === 10) {
@@ -267,7 +420,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 1, x: 35, y: 40, fila: 2 },
         { equipo: 1, x: 35, y: 60, fila: 2 },
         { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 50, y: 50, fila: 3 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
         { equipo: 2, x: 92, y: 50, fila: 0 },
         { equipo: 2, x: 80, y: 25, fila: 1 },
         { equipo: 2, x: 80, y: 40, fila: 1 },
@@ -277,7 +430,7 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 65, y: 40, fila: 2 },
         { equipo: 2, x: 65, y: 60, fila: 2 },
         { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 50, y: 50, fila: 3 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
     // 10 vs 10: 1-4-3-2
@@ -305,6 +458,60 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 65, y: 70, fila: 2 },
         { equipo: 2, x: 58, y: 40, fila: 3 },
         { equipo: 2, x: 58, y: 60, fila: 3 },
+      ],
+    });
+    // 10 vs 10: 1-3-4-2
+    formations.push({
+      name: '1-3-4-2',
+      label: '1-3-4-2',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 30, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 70, fila: 1 },
+        { equipo: 1, x: 35, y: 25, fila: 2 },
+        { equipo: 1, x: 35, y: 40, fila: 2 },
+        { equipo: 1, x: 35, y: 60, fila: 2 },
+        { equipo: 1, x: 35, y: 75, fila: 2 },
+        { equipo: 1, x: 42, y: 40, fila: 3 },
+        { equipo: 1, x: 42, y: 60, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 30, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 70, fila: 1 },
+        { equipo: 2, x: 65, y: 25, fila: 2 },
+        { equipo: 2, x: 65, y: 40, fila: 2 },
+        { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 65, y: 75, fila: 2 },
+        { equipo: 2, x: 58, y: 40, fila: 3 },
+        { equipo: 2, x: 58, y: 60, fila: 3 },
+      ],
+    });
+    // 10 vs 10: 1-5-3-1
+    formations.push({
+      name: '1-5-3-1',
+      label: '1-5-3-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 20, fila: 1 },
+        { equipo: 1, x: 20, y: 35, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 65, fila: 1 },
+        { equipo: 1, x: 20, y: 80, fila: 1 },
+        { equipo: 1, x: 35, y: 30, fila: 2 },
+        { equipo: 1, x: 35, y: 50, fila: 2 },
+        { equipo: 1, x: 35, y: 70, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 20, fila: 1 },
+        { equipo: 2, x: 80, y: 35, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 65, fila: 1 },
+        { equipo: 2, x: 80, y: 80, fila: 1 },
+        { equipo: 2, x: 65, y: 30, fila: 2 },
+        { equipo: 2, x: 65, y: 50, fila: 2 },
+        { equipo: 2, x: 65, y: 70, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
   } else if (jugadoresPorEquipo === 11) {
@@ -393,6 +600,122 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
         { equipo: 2, x: 65, y: 80, fila: 2 },
         { equipo: 2, x: 50, y: 40, fila: 3 },
         { equipo: 2, x: 50, y: 60, fila: 3 },
+      ],
+    });
+    // 11 vs 11: 1-4-1-4-1 (diamante)
+    formations.push({
+      name: '1-4-1-4-1',
+      label: '1-4-1-4-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 25, fila: 1 },
+        { equipo: 1, x: 20, y: 40, fila: 1 },
+        { equipo: 1, x: 20, y: 60, fila: 1 },
+        { equipo: 1, x: 20, y: 75, fila: 1 },
+        { equipo: 1, x: 30, y: 50, fila: 2 },
+        { equipo: 1, x: 38, y: 30, fila: 2 },
+        { equipo: 1, x: 38, y: 45, fila: 2 },
+        { equipo: 1, x: 38, y: 55, fila: 2 },
+        { equipo: 1, x: 38, y: 70, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 25, fila: 1 },
+        { equipo: 2, x: 80, y: 40, fila: 1 },
+        { equipo: 2, x: 80, y: 60, fila: 1 },
+        { equipo: 2, x: 80, y: 75, fila: 1 },
+        { equipo: 2, x: 70, y: 50, fila: 2 },
+        { equipo: 2, x: 62, y: 30, fila: 2 },
+        { equipo: 2, x: 62, y: 45, fila: 2 },
+        { equipo: 2, x: 62, y: 55, fila: 2 },
+        { equipo: 2, x: 62, y: 70, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+      ],
+    });
+    // 11 vs 11: 1-3-4-3
+    formations.push({
+      name: '1-3-4-3',
+      label: '1-3-4-3',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 30, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 70, fila: 1 },
+        { equipo: 1, x: 35, y: 25, fila: 2 },
+        { equipo: 1, x: 35, y: 40, fila: 2 },
+        { equipo: 1, x: 35, y: 60, fila: 2 },
+        { equipo: 1, x: 35, y: 75, fila: 2 },
+        { equipo: 1, x: 42, y: 30, fila: 3 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 1, x: 42, y: 70, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 30, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 70, fila: 1 },
+        { equipo: 2, x: 65, y: 25, fila: 2 },
+        { equipo: 2, x: 65, y: 40, fila: 2 },
+        { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 65, y: 75, fila: 2 },
+        { equipo: 2, x: 58, y: 30, fila: 3 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+        { equipo: 2, x: 58, y: 70, fila: 3 },
+      ],
+    });
+    // 11 vs 11: 1-5-4-1
+    formations.push({
+      name: '1-5-4-1',
+      label: '1-5-4-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 20, fila: 1 },
+        { equipo: 1, x: 20, y: 35, fila: 1 },
+        { equipo: 1, x: 20, y: 50, fila: 1 },
+        { equipo: 1, x: 20, y: 65, fila: 1 },
+        { equipo: 1, x: 20, y: 80, fila: 1 },
+        { equipo: 1, x: 35, y: 25, fila: 2 },
+        { equipo: 1, x: 35, y: 40, fila: 2 },
+        { equipo: 1, x: 35, y: 60, fila: 2 },
+        { equipo: 1, x: 35, y: 75, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 20, fila: 1 },
+        { equipo: 2, x: 80, y: 35, fila: 1 },
+        { equipo: 2, x: 80, y: 50, fila: 1 },
+        { equipo: 2, x: 80, y: 65, fila: 1 },
+        { equipo: 2, x: 80, y: 80, fila: 1 },
+        { equipo: 2, x: 65, y: 25, fila: 2 },
+        { equipo: 2, x: 65, y: 40, fila: 2 },
+        { equipo: 2, x: 65, y: 60, fila: 2 },
+        { equipo: 2, x: 65, y: 75, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
+      ],
+    });
+    // 11 vs 11: 1-4-5-1
+    formations.push({
+      name: '1-4-5-1',
+      label: '1-4-5-1',
+      positions: [
+        { equipo: 1, x: 8, y: 50, fila: 0 },
+        { equipo: 1, x: 20, y: 25, fila: 1 },
+        { equipo: 1, x: 20, y: 40, fila: 1 },
+        { equipo: 1, x: 20, y: 60, fila: 1 },
+        { equipo: 1, x: 20, y: 75, fila: 1 },
+        { equipo: 1, x: 35, y: 20, fila: 2 },
+        { equipo: 1, x: 35, y: 35, fila: 2 },
+        { equipo: 1, x: 35, y: 50, fila: 2 },
+        { equipo: 1, x: 35, y: 65, fila: 2 },
+        { equipo: 1, x: 35, y: 80, fila: 2 },
+        { equipo: 1, x: 45, y: 50, fila: 3 },
+        { equipo: 2, x: 92, y: 50, fila: 0 },
+        { equipo: 2, x: 80, y: 25, fila: 1 },
+        { equipo: 2, x: 80, y: 40, fila: 1 },
+        { equipo: 2, x: 80, y: 60, fila: 1 },
+        { equipo: 2, x: 80, y: 75, fila: 1 },
+        { equipo: 2, x: 65, y: 20, fila: 2 },
+        { equipo: 2, x: 65, y: 35, fila: 2 },
+        { equipo: 2, x: 65, y: 50, fila: 2 },
+        { equipo: 2, x: 65, y: 65, fila: 2 },
+        { equipo: 2, x: 65, y: 80, fila: 2 },
+        { equipo: 2, x: 55, y: 50, fila: 3 },
       ],
     });
   }
@@ -554,16 +877,23 @@ export const CanchaVisualization = ({
         if (formation && formation.positions.length > 0) {
           const equipo: 1 | 2 = (index % 2 === 0) ? 1 : 2;
           const teamPositions = formation.positions.filter((p) => p.equipo === equipo);
-          const positionIndex = Math.floor(index / 2) % teamPositions.length;
-          const formationPos = teamPositions[positionIndex];
           
-          return {
-            id: participante.id,
-            x: formationPos.x,
-            y: formationPos.y,
-            nombre: playerName,
-            equipo: formationPos.equipo,
-          };
+          // Validar que hay posiciones disponibles para este equipo
+          if (teamPositions.length > 0) {
+            const positionIndex = Math.floor(index / 2) % teamPositions.length;
+            const formationPos = teamPositions[positionIndex];
+            
+            // Validar que formationPos existe antes de usarlo
+            if (formationPos) {
+              return {
+                id: participante.id,
+                x: formationPos.x,
+                y: formationPos.y,
+                nombre: playerName,
+                equipo: formationPos.equipo,
+              };
+            }
+          }
         }
 
         // Fallback: distribución básica

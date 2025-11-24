@@ -4,6 +4,7 @@ import {
   participanteSchema,
   sedeSchema,
   usuarioSchema,
+  categoriaSchema,
 } from './validators';
 
 describe('validators', () => {
@@ -148,6 +149,51 @@ describe('validators', () => {
         email: 'invalid-email',
       };
       expect(() => usuarioSchema.parse(invalidUsuario)).toThrow();
+    });
+  });
+
+  describe('categoriaSchema', () => {
+    it('validates a valid categoria', () => {
+      const validCategoria = {
+        nombre: 'Fútbol 11',
+        descripcion: 'Partidos de fútbol 11 vs 11',
+        icono: '⚽',
+        color: '#1E88E5',
+      };
+      expect(() => categoriaSchema.parse(validCategoria)).not.toThrow();
+    });
+
+    it('rejects categoria without nombre', () => {
+      const invalidCategoria = {
+        descripcion: 'Descripción',
+      };
+      expect(() => categoriaSchema.parse(invalidCategoria)).toThrow();
+    });
+
+    it('accepts optional fields', () => {
+      const categoria = {
+        nombre: 'Fútbol 11',
+        descripcion: '',
+        icono: '',
+        color: '',
+      };
+      expect(() => categoriaSchema.parse(categoria)).not.toThrow();
+    });
+
+    it('rejects categoria with invalid color format', () => {
+      const invalidCategoria = {
+        nombre: 'Fútbol 11',
+        color: 'invalid-color',
+      };
+      expect(() => categoriaSchema.parse(invalidCategoria)).toThrow();
+    });
+
+    it('accepts valid hex color', () => {
+      const categoria = {
+        nombre: 'Fútbol 11',
+        color: '#1E88E5',
+      };
+      expect(() => categoriaSchema.parse(categoria)).not.toThrow();
     });
   });
 });

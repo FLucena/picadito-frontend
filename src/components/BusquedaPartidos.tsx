@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, X, Filter, Calendar, MapPin, User, Users } from 'lucide-react';
+import { Search, X, Filter, Calendar, MapPin, User, Users, Tag } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';
 import { Badge } from './ui/Badge';
 import { Drawer } from './ui/Drawer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useCategorias } from '../hooks/useCategorias';
 import type { BusquedaPartidoDTO, EstadoPartido } from '../types';
 
 interface BusquedaPartidosProps {
@@ -15,11 +16,13 @@ interface BusquedaPartidosProps {
 
 export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { data: categorias } = useCategorias();
   const [titulo, setTitulo] = useState('');
   const [tituloDebounced, setTituloDebounced] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [creadorNombre, setCreadorNombre] = useState('');
   const [estado, setEstado] = useState<EstadoPartido | ''>('');
+  const [categoriaId, setCategoriaId] = useState<number | ''>('');
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
   const [minJugadores, setMinJugadores] = useState('');
@@ -35,6 +38,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
       ubicacion: ubicacion || undefined,
       creadorNombre: creadorNombre || undefined,
       estado: estado || undefined,
+      categoriaId: categoriaId ? Number(categoriaId) : undefined,
       fechaDesde: fechaDesde || undefined,
       fechaHasta: fechaHasta || undefined,
       minJugadores: minJugadores ? parseInt(minJugadores) : undefined,
@@ -42,7 +46,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
       cuposDisponiblesMin: cuposDisponiblesMin ? parseInt(cuposDisponiblesMin) : undefined,
       soloDisponibles: soloDisponibles || undefined,
     };
-  }, [titulo, ubicacion, creadorNombre, estado, fechaDesde, fechaHasta, minJugadores, maxJugadores, cuposDisponiblesMin, soloDisponibles]);
+  }, [titulo, ubicacion, creadorNombre, estado, categoriaId, fechaDesde, fechaHasta, minJugadores, maxJugadores, cuposDisponiblesMin, soloDisponibles]);
 
   const handleSearch = useCallback(() => {
     const busqueda = buildBusqueda();
@@ -70,6 +74,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
     setUbicacion('');
     setCreadorNombre('');
     setEstado('');
+    setCategoriaId('');
     setFechaDesde('');
     setFechaHasta('');
     setMinJugadores('');
@@ -89,10 +94,12 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
     return labels[estado] || estado;
   };
 
+  const categoriaSeleccionada = categorias?.find(c => c.id === categoriaId);
   const activeFilters = [
     { key: 'ubicacion', label: ubicacion, onRemove: () => setUbicacion('') },
     { key: 'creador', label: creadorNombre, onRemove: () => setCreadorNombre('') },
     { key: 'estado', label: estado ? getEstadoLabel(estado) : '', onRemove: () => setEstado('') },
+    { key: 'categoria', label: categoriaSeleccionada ? categoriaSeleccionada.nombre : '', onRemove: () => setCategoriaId('') },
     { key: 'fechaDesde', label: fechaDesde ? 'Desde: ' + fechaDesde.split('T')[0] : '', onRemove: () => setFechaDesde('') },
     { key: 'fechaHasta', label: fechaHasta ? 'Hasta: ' + fechaHasta.split('T')[0] : '', onRemove: () => setFechaHasta('') },
     { key: 'minJugadores', label: minJugadores ? `Min: ${minJugadores}` : '', onRemove: () => setMinJugadores('') },
@@ -120,6 +127,23 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
         placeholder="Nombre del creador"
         leftIcon={<User className="h-4 w-4" />}
       />
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
+        <select
+          value={categoriaId}
+          onChange={(e) => setCategoriaId(e.target.value ? Number(e.target.value) : '')}
+          className="w-full px-4 py-2.5 text-base rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+        >
+          <option value="">Todas las categorías</option>
+          {categorias?.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.icono && `${categoria.icono} `}
+              {categoria.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Calendar, Users, X } from 'lucide-react';
+import { Calendar, Users, X, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
+import { CalificacionForm } from '../components/CalificacionForm';
 import { useReservasPorUsuario, useCancelarReserva } from '../hooks/useInscripciones';
 import { toast } from '../utils/toast';
 import type { EstadoReserva } from '../types';
@@ -51,6 +53,8 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
   const cancelarReserva = useCancelarReserva();
   const [showCancelarModal, setShowCancelarModal] = useState(false);
   const [inscripcionACancelar, setInscripcionACancelar] = useState<number | null>(null);
+  const [showCalificacionModal, setShowCalificacionModal] = useState(false);
+  const [partidoACalificar, setPartidoACalificar] = useState<number | null>(null);
 
   const handleCancelar = (reservaId: number) => {
     setInscripcionACancelar(reservaId);
@@ -156,6 +160,20 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
                           )}
                         </div>
                       </div>
+                      {reserva.estado === 'FINALIZADO' && linea.partidoId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setPartidoACalificar(linea.partidoId);
+                            setShowCalificacionModal(true);
+                          }}
+                          className="flex items-center gap-2"
+                        >
+                          <Star className="h-4 w-4" />
+                          Calificar
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -177,6 +195,30 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
           variant="warning"
           isLoading={cancelarReserva.isPending}
         />
+
+        {partidoACalificar && (
+          <Modal
+            isOpen={showCalificacionModal}
+            onClose={() => {
+              setShowCalificacionModal(false);
+              setPartidoACalificar(null);
+            }}
+            title="Calificar Partido"
+          >
+            <CalificacionForm
+              partidoId={partidoACalificar}
+              usuarioId={usuarioId}
+              onSuccess={() => {
+                setShowCalificacionModal(false);
+                setPartidoACalificar(null);
+              }}
+              onCancel={() => {
+                setShowCalificacionModal(false);
+                setPartidoACalificar(null);
+              }}
+            />
+          </Modal>
+        )}
       </div>
     </div>
   );

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
+import { CategoriaBadge } from './CategoriaBadge';
 import { formatFechaHoraCorta, formatFechaRelativa, getEstadoLabel } from '../utils/formatters';
-import { Calendar, MapPin, Users, CalendarCheck, AlertCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, MapPin, Users, CalendarCheck, AlertCircle, Clock, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import type { PartidoResponseDTO } from '../types';
 
 interface PartidoCardProps {
@@ -66,9 +67,22 @@ export const PartidoCard = ({
             )}
             <h3 className="text-lg font-medium text-gray-900 flex-1 leading-tight">{partido.titulo}</h3>
           </div>
-          <Badge variant={getEstadoVariant(partido.estado)} size="sm">
-            {getEstadoLabel(partido.estado)}
-          </Badge>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Badge variant={getEstadoVariant(partido.estado)} size="sm">
+              {getEstadoLabel(partido.estado)}
+            </Badge>
+            {partido.categoria && (
+              <CategoriaBadge categoria={partido.categoria} size="sm" />
+            )}
+            {partido.promedioCalificacion && (
+              <div className="flex items-center gap-0.5 text-yellow-500">
+                <Star className="h-3.5 w-3.5 fill-current" />
+                <span className="text-xs font-medium text-gray-700">
+                  {partido.promedioCalificacion.toFixed(1)}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Essential Info - Always Visible */}

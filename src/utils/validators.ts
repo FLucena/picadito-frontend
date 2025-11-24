@@ -47,6 +47,9 @@ export const partidoSchema = z.object({
   sedeId: z
     .union([z.number().positive('El ID de la sede debe ser un número positivo'), z.undefined()])
     .optional(),
+  categoriaId: z
+    .union([z.number().positive('El ID de la categoría debe ser un número positivo'), z.undefined()])
+    .optional(),
   maxJugadores: z
     .number()
     .int('El número máximo de jugadores debe ser un número entero')
@@ -111,7 +114,31 @@ export const sedeSchema = z.object({
     .or(z.literal('')),
 });
 
+// Validators para Categorías
+export const categoriaSchema = z.object({
+  nombre: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .max(100, 'El nombre no puede exceder 100 caracteres'),
+  descripcion: z
+    .string()
+    .max(500, 'La descripción no puede exceder 500 caracteres')
+    .optional()
+    .or(z.literal('')),
+  icono: z
+    .string()
+    .max(10, 'El icono no puede exceder 10 caracteres')
+    .optional()
+    .or(z.literal('')),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, 'El color debe ser un código hexadecimal válido (ej: #1E88E5)')
+    .optional()
+    .or(z.literal('')),
+});
+
 export type UsuarioFormData = z.infer<typeof usuarioSchema>;
 export type PartidoFormData = z.infer<typeof partidoSchema>;
 export type ParticipanteFormData = z.infer<typeof participanteSchema>;
 export type SedeFormData = z.infer<typeof sedeSchema>;
+export type CategoriaFormData = z.infer<typeof categoriaSchema>;

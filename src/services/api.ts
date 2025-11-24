@@ -10,6 +10,16 @@ import type {
   EstadoReserva,
   SedeDTO,
   SedeResponseDTO,
+  CategoriaDTO,
+  CategoriaResponseDTO,
+  AlertaResponseDTO,
+  CalificacionDTO,
+  CalificacionResponseDTO,
+  EquipoResponseDTO,
+  EstadisticasResponseDTO,
+  ReporteVentasDTO,
+  ReportePartidosDTO,
+  ReporteUsuariosDTO,
 } from '../types';
 
 // En desarrollo, usar URL relativa para aprovechar el proxy de Vite
@@ -226,11 +236,158 @@ export const sedesApi = {
   },
 };
 
+// Categorías API
+export const categoriasApi = {
+  getAll: async (): Promise<CategoriaResponseDTO[]> => {
+    const response = await apiClient.get<CategoriaResponseDTO[]>('/categorias');
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<CategoriaResponseDTO> => {
+    const response = await apiClient.get<CategoriaResponseDTO>(`/categorias/${id}`);
+    return response.data;
+  },
+
+  create: async (categoria: CategoriaDTO): Promise<CategoriaResponseDTO> => {
+    const response = await apiClient.post<CategoriaResponseDTO>('/categorias', categoria);
+    return response.data;
+  },
+
+  update: async (id: number, categoria: CategoriaDTO): Promise<CategoriaResponseDTO> => {
+    const response = await apiClient.put<CategoriaResponseDTO>(`/categorias/${id}`, categoria);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/categorias/${id}`);
+  },
+
+  getPartidosByCategoria: async (categoriaId: number): Promise<PartidoResponseDTO[]> => {
+    const response = await apiClient.get<PartidoResponseDTO[]>(`/partidos/categoria/${categoriaId}`);
+    return response.data;
+  },
+};
+
+// Alertas API
+export const alertasApi = {
+  getByUsuario: async (usuarioId: number): Promise<AlertaResponseDTO[]> => {
+    const response = await apiClient.get<AlertaResponseDTO[]>(`/alertas/usuario/${usuarioId}`);
+    return response.data;
+  },
+
+  getNoLeidas: async (usuarioId: number): Promise<AlertaResponseDTO[]> => {
+    const response = await apiClient.get<AlertaResponseDTO[]>(`/alertas/usuario/${usuarioId}/no-leidas`);
+    return response.data;
+  },
+
+  marcarLeida: async (id: number): Promise<void> => {
+    await apiClient.put(`/alertas/${id}/marcar-leida`);
+  },
+
+  marcarTodasLeidas: async (usuarioId: number): Promise<void> => {
+    await apiClient.put(`/alertas/usuario/${usuarioId}/marcar-todas-leidas`);
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/alertas/${id}`);
+  },
+};
+
+// Calificaciones API
+export const calificacionesApi = {
+  create: async (usuarioId: number, calificacion: CalificacionDTO): Promise<CalificacionResponseDTO> => {
+    const response = await apiClient.post<CalificacionResponseDTO>(
+      `/calificaciones/usuario/${usuarioId}`,
+      calificacion
+    );
+    return response.data;
+  },
+
+  getByPartido: async (partidoId: number): Promise<CalificacionResponseDTO[]> => {
+    const response = await apiClient.get<CalificacionResponseDTO[]>(`/calificaciones/partido/${partidoId}`);
+    return response.data;
+  },
+
+  getPromedioByPartido: async (partidoId: number): Promise<number> => {
+    const response = await apiClient.get<number>(`/calificaciones/partido/${partidoId}/promedio`);
+    return response.data;
+  },
+
+  getPromedioByCreador: async (creadorNombre: string): Promise<number> => {
+    const response = await apiClient.get<number>(`/calificaciones/creador/${encodeURIComponent(creadorNombre)}/promedio`);
+    return response.data;
+  },
+
+  getPromedioBySede: async (sedeId: number): Promise<number> => {
+    const response = await apiClient.get<number>(`/calificaciones/sede/${sedeId}/promedio`);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/calificaciones/${id}`);
+  },
+};
+
+// Equipos API
+export const equiposApi = {
+  generarEquipos: async (partidoId: number): Promise<EquipoResponseDTO[]> => {
+    const response = await apiClient.post<EquipoResponseDTO[]>(`/equipos/partido/${partidoId}/generar`);
+    return response.data;
+  },
+
+  getByPartido: async (partidoId: number): Promise<EquipoResponseDTO[]> => {
+    const response = await apiClient.get<EquipoResponseDTO[]>(`/equipos/partido/${partidoId}`);
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<EquipoResponseDTO> => {
+    const response = await apiClient.get<EquipoResponseDTO>(`/equipos/${id}`);
+    return response.data;
+  },
+
+  delete: async (partidoId: number): Promise<void> => {
+    await apiClient.delete(`/equipos/partido/${partidoId}`);
+  },
+};
+
 // Admin API
 export const adminApi = {
   getPartidosCapacidadBaja: async (capacidadMinima?: number): Promise<PartidoResponseDTO[]> => {
     const params = capacidadMinima ? `?capacidadMinima=${capacidadMinima}` : '';
     const response = await apiClient.get<PartidoResponseDTO[]>(`/admin/partidos-capacidad-baja${params}`);
+    return response.data;
+  },
+
+  getEstadisticas: async (): Promise<EstadisticasResponseDTO> => {
+    const response = await apiClient.get<EstadisticasResponseDTO>('/admin/estadisticas');
+    return response.data;
+  },
+
+  getEstadisticasPorPeriodo: async (fechaInicio: string, fechaFin: string): Promise<EstadisticasResponseDTO> => {
+    const response = await apiClient.get<EstadisticasResponseDTO>(
+      `/admin/estadisticas/periodo?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+    );
+    return response.data;
+  },
+
+  getReporteVentas: async (fechaInicio: string, fechaFin: string): Promise<ReporteVentasDTO> => {
+    const response = await apiClient.get<ReporteVentasDTO>(
+      `/admin/reportes/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+    );
+    return response.data;
+  },
+
+  getReportePartidos: async (fechaInicio: string, fechaFin: string): Promise<ReportePartidosDTO> => {
+    const response = await apiClient.get<ReportePartidosDTO>(
+      `/admin/reportes/partidos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+    );
+    return response.data;
+  },
+
+  getReporteUsuarios: async (fechaInicio: string, fechaFin: string): Promise<ReporteUsuariosDTO> => {
+    const response = await apiClient.get<ReporteUsuariosDTO>(
+      `/admin/reportes/usuarios?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+    );
     return response.data;
   },
 };

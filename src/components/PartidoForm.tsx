@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { partidoSchema, type PartidoFormData } from '../utils/validators';
 import { Button } from './ui/Button';
 import { useSedes } from '../hooks/useSedes';
+import { useCategorias } from '../hooks/useCategorias';
 import type { PartidoResponseDTO } from '../types';
 
 interface PartidoFormProps {
@@ -17,6 +18,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
   const [inscribirseTambien, setInscribirseTambien] = useState(false);
   const isCreating = !partido;
   const { data: sedes } = useSedes();
+  const { data: categorias } = useCategorias();
 
   const {
     register,
@@ -25,13 +27,14 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
     watch,
   } = useForm<PartidoFormData>({
     resolver: zodResolver(partidoSchema),
-    defaultValues: partido
+        defaultValues: partido
       ? {
           titulo: partido.titulo,
           descripcion: partido.descripcion || '',
           fechaHora: partido.fechaHora.slice(0, 16),
           ubicacion: partido.ubicacion || '',
           sedeId: partido.sedeId,
+          categoriaId: partido.categoriaId,
           maxJugadores: partido.maxJugadores,
           creadorNombre: partido.creadorNombre,
         }
@@ -139,6 +142,36 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
               <p className="mt-1 text-sm text-red-600">{errors.ubicacion.message}</p>
             )}
           </div>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700 mb-1">
+          Categoría
+        </label>
+        <select
+          id="categoriaId"
+          {...register('categoriaId', {
+            setValueAs: (value) => {
+              if (value === '' || value === null || value === undefined) {
+                return undefined;
+              }
+              const numValue = Number(value);
+              return isNaN(numValue) ? undefined : numValue;
+            },
+          })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+        >
+          <option value="">Seleccionar categoría (opcional)</option>
+          {categorias?.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.icono && `${categoria.icono} `}
+              {categoria.nombre}
+            </option>
+          ))}
+        </select>
+        {errors.categoriaId && (
+          <p className="mt-1 text-sm text-red-600">{errors.categoriaId.message}</p>
         )}
       </div>
 

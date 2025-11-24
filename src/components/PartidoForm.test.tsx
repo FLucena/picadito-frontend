@@ -13,6 +13,15 @@ vi.mock('../hooks/useSedes', () => ({
   })),
 }));
 
+vi.mock('../hooks/useCategorias', () => ({
+  useCategorias: vi.fn(() => ({
+    data: [
+      { id: 1, nombre: 'Fútbol 11', icono: '⚽', color: '#1E88E5' },
+      { id: 2, nombre: 'Fútbol 7', icono: '⚽', color: '#43A047' },
+    ],
+  })),
+}));
+
 describe('PartidoForm', () => {
   const mockOnSubmit = vi.fn();
   const mockOnCancel = vi.fn();
@@ -32,6 +41,7 @@ describe('PartidoForm', () => {
     expect(screen.getByLabelText(/título/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/descripción/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/fecha y hora/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/categoría/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/máximo de jugadores/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/nombre del creador/i)).toBeInTheDocument();
   });

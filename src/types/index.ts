@@ -63,6 +63,7 @@ export interface PartidoDTO {
   fechaHora: string; // ISO 8601 format
   ubicacion?: string;
   sedeId?: number;
+  categoriaId?: number;
   maxJugadores: number;
   creadorNombre: string;
   precio?: number;
@@ -77,6 +78,8 @@ export interface PartidoResponseDTO {
   ubicacion?: string;
   sedeId?: number;
   sede?: SedeResponseDTO;
+  categoriaId?: number;
+  categoria?: CategoriaResponseDTO;
   maxJugadores: number;
   estado: EstadoPartido;
   creadorNombre: string;
@@ -85,6 +88,8 @@ export interface PartidoResponseDTO {
   participantes?: ParticipanteResponseDTO[];
   precio?: number;
   imagenUrl?: string;
+  promedioCalificacion?: number | null;
+  equipos?: EquipoResponseDTO[];
 }
 
 export interface ParticipanteDTO {
@@ -177,6 +182,7 @@ export interface BusquedaPartidoDTO {
   ubicacion?: string;
   creadorNombre?: string;
   estado?: EstadoPartido;
+  categoriaId?: number;
   fechaDesde?: string; // ISO 8601 format
   fechaHasta?: string; // ISO 8601 format
   minJugadores?: number;
@@ -203,4 +209,134 @@ export interface SedeResponseDTO {
   coordenadas?: string;
   fechaCreacion: string;
   fechaActualizacion: string;
+}
+
+// Categorías
+export interface CategoriaDTO {
+  nombre: string;
+  descripcion?: string;
+  icono?: string;
+  color?: string;
+}
+
+export interface CategoriaResponseDTO {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  icono?: string;
+  color?: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
+// Alertas
+export const TipoAlerta = {
+  CUPOS_BAJOS: 'CUPOS_BAJOS',
+  PARTIDO_PROXIMO: 'PARTIDO_PROXIMO',
+  RESERVA_CONFIRMADA: 'RESERVA_CONFIRMADA',
+  PARTIDO_CANCELADO: 'PARTIDO_CANCELADO',
+  PARTIDO_COMPLETO: 'PARTIDO_COMPLETO',
+} as const;
+
+export type TipoAlerta = typeof TipoAlerta[keyof typeof TipoAlerta];
+
+export interface AlertaResponseDTO {
+  id: number;
+  tipo: TipoAlerta;
+  mensaje: string;
+  leida: boolean;
+  usuarioId: number;
+  partidoId?: number;
+  partidoTitulo?: string;
+  fechaCreacion: string;
+}
+
+// Calificaciones
+export interface CalificacionDTO {
+  puntuacion: number;
+  comentario?: string;
+  partidoId: number;
+}
+
+export interface CalificacionResponseDTO {
+  id: number;
+  puntuacion: number;
+  comentario?: string;
+  usuarioId: number;
+  usuarioNombre: string;
+  partidoId: number;
+  partidoTitulo: string;
+  fechaCreacion: string;
+}
+
+// Equipos
+export interface EquipoResponseDTO {
+  id: number;
+  nombre: string;
+  partidoId: number;
+  cantidadParticipantes: number;
+  participantes: ParticipanteResponseDTO[];
+}
+
+// Estadísticas Admin
+export interface PartidoPopularDTO {
+  partidoId: number;
+  titulo: string;
+  cantidadParticipantes: number;
+  maxJugadores: number;
+  porcentajeOcupacion: number;
+}
+
+export interface UsuarioActivoDTO {
+  usuarioId: number;
+  nombre: string;
+  cantidadReservas: number;
+  totalGastado: number;
+}
+
+export interface SedeUtilizadaDTO {
+  sedeId: number;
+  nombre?: string;
+  direccion?: string;
+  cantidadPartidos: number;
+}
+
+export interface EstadisticasResponseDTO {
+  totalPartidos: number;
+  totalReservas: number;
+  totalUsuarios: number;
+  ingresosTotales: number;
+  ingresosPorPeriodo: number;
+  partidosPopulares: PartidoPopularDTO[];
+  usuariosActivos: UsuarioActivoDTO[];
+  sedesUtilizadas: SedeUtilizadaDTO[];
+  partidosPorCategoria: Record<string, number>;
+  tasaOcupacionPromedio: number;
+}
+
+export interface ReporteVentasDTO {
+  fechaInicio: string;
+  fechaFin: string;
+  totalVentas: number;
+  cantidadReservas: number;
+  reservasPorEstado: Record<string, number>;
+  ingresosPorDia: Array<{ fecha: string; ingresos: number }>;
+}
+
+export interface ReportePartidosDTO {
+  fechaInicio: string;
+  fechaFin: string;
+  totalPartidos: number;
+  partidosPorEstado: Record<string, number>;
+  partidosPorCategoria: Record<string, number>;
+  partidosPorDia: Array<{ fecha: string; cantidad: number }>;
+}
+
+export interface ReporteUsuariosDTO {
+  fechaInicio: string;
+  fechaFin: string;
+  totalUsuarios: number;
+  nuevosUsuarios: number;
+  usuariosActivos: number;
+  usuariosPorRol: Record<string, number>;
 }
