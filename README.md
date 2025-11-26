@@ -24,8 +24,11 @@ Frontend moderno desarrollado con React y TypeScript para el sistema de gestión
 - ✅ **Listado de Partidos**: Ver todos los partidos o solo disponibles
 - ✅ **Búsqueda Avanzada**: Filtrar por título, ubicación, fecha, estado, jugadores
 - ✅ **Gestión de Partidos**: Crear, editar y eliminar partidos
+- ✅ **Múltiples Categorías**: Asignar múltiples categorías a cada partido
+- ✅ **Validación de Jugadores**: Solo se permiten partidos con número par de jugadores (10, 12, 14, 16, 18, 20, 22)
 - ✅ **Gestión de Sedes**: Crear, editar y eliminar sedes (lugares donde se juegan los partidos)
 - ✅ **Detalles de Partido**: Ver información completa, participantes y visualización de cancha
+- ✅ **Formaciones Dinámicas**: Las formaciones se generan automáticamente según el número de jugadores
 - ✅ **Sistema de Partidos Seleccionados**: Agregar partidos a una lista temporal antes de confirmar
 - ✅ **Selección Múltiple**: Seleccionar uno o más partidos para confirmar
 - ✅ **Validación de Partidos Completos**: Solo se pueden confirmar partidos que tengan todos los jugadores necesarios
@@ -214,9 +217,11 @@ El proyecto sigue una **arquitectura modular** con separación clara de responsa
 
 ### 3. Crear Partido (`CreatePartidoPage.tsx`)
 - Formulario completo para crear partidos
+- Selección múltiple de categorías (checkboxes)
 - Asociación con sedes
 - Definición de precio opcional
 - Validación en tiempo real
+- Validación de número par de jugadores (10-22)
 - Integración con inscripción automática
 
 ### 4. Detalles de Partido (`PartidoDetailPage.tsx`)
@@ -268,11 +273,11 @@ El proyecto sigue una **arquitectura modular** con separación clara de responsa
 ### Componentes de Dominio
 
 - **PartidoCard**: Card para mostrar información de un partido
-- **PartidoForm**: Formulario para crear/editar partidos
+- **PartidoForm**: Formulario para crear/editar partidos con selección múltiple de categorías
 - **ParticipanteForm**: Formulario para inscribirse a un partido
 - **ParticipanteList**: Lista de participantes de un partido
-- **CanchaVisualization**: Visualización interactiva de la cancha con jugadores
-- **BusquedaPartidos**: Componente de búsqueda avanzada con filtros
+- **CanchaVisualization**: Visualización interactiva de la cancha con jugadores y formaciones dinámicas
+- **BusquedaPartidos**: Componente de búsqueda avanzada con filtros (incluye filtro por múltiples categorías)
 
 ## 🎣 Hooks Personalizados
 
@@ -397,6 +402,21 @@ El frontend consume la API REST del backend Java Spring Boot.
 - **Responsive**: Mobile-first, adaptable a tablet y desktop
 - **UX**: Interacciones fluidas, feedback visual claro, estados de carga
 - **Accesibilidad**: Navegación por teclado, ARIA labels, contraste adecuado
+
+## ⚙️ Reglas de Negocio
+
+### Partidos
+
+- **Número de Jugadores**: Solo se permiten partidos con número par de jugadores entre 10 y 22 (10, 12, 14, 16, 18, 20, 22)
+- **Múltiples Categorías**: Cada partido puede tener múltiples categorías asociadas
+- **Formaciones**: Las formaciones se generan automáticamente según el número de jugadores por equipo, distribuyendo jugadores entre defensa, mediocampo y delantera
+
+### Validaciones
+
+- **Formularios**: Validación en tiempo real con Zod
+- **Jugadores**: Validación de que el número sea par y esté en el rango permitido
+- **Categorías**: Al menos una categoría debe ser seleccionada (opcional)
+- **Fechas**: Las fechas deben ser en el futuro
 
 ## 🔄 Flujo de Usuario
 

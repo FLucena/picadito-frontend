@@ -66,673 +66,197 @@ const getColorByEquipo = (equipo: 1 | 2): string => {
   return equipo === 1 ? EQUIPO_1_COLOR : EQUIPO_2_COLOR;
 };
 
-// Genera formaciones según la cantidad de jugadores por equipo
+// Genera formaciones dinámicamente según la cantidad de jugadores por equipo
 const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
   const formations: Formation[] = [];
 
-  // Formaciones comunes según cantidad de jugadores
-  if (jugadoresPorEquipo === 5) {
-    // 5 vs 5: 1-2-1-1 (Portero, 2 defensas, 1 mediocampista, 1 delantero)
+  // Validar que haya al menos 1 jugador por equipo (portero)
+  if (jugadoresPorEquipo < 1) {
+    return formations;
+  }
+
+  // Siempre hay 1 portero por equipo
+  const jugadoresDeCampo = jugadoresPorEquipo - 1;
+
+  // Función auxiliar para generar posiciones de un equipo
+  const generateTeamPositions = (
+    equipo: 1 | 2,
+    distribucion: number[] // [defensa, mediocampo, delantera]
+  ): { equipo: 1 | 2; x: number; y: number; fila: number }[] => {
+    const positions: { equipo: 1 | 2; x: number; y: number; fila: number }[] = [];
+    const [defensa, mediocampo, delantera] = distribucion;
+
+    // Portero (fila 0)
+    positions.push({
+      equipo,
+      x: equipo === 1 ? 8 : 92,
+      y: 50,
+      fila: 0,
+    });
+
+    // Defensa (fila 1)
+    if (defensa > 0) {
+      const spacing = defensa > 1 ? 80 / (defensa + 1) : 50;
+      for (let i = 0; i < defensa; i++) {
+        const y = defensa === 1 ? 50 : 20 + (i + 1) * (60 / (defensa + 1));
+        positions.push({
+          equipo,
+          x: equipo === 1 ? 20 : 80,
+          y,
+          fila: 1,
+        });
+      }
+    }
+
+    // Mediocampo (fila 2)
+    if (mediocampo > 0) {
+      const spacing = mediocampo > 1 ? 80 / (mediocampo + 1) : 50;
+      for (let i = 0; i < mediocampo; i++) {
+        const y = mediocampo === 1 ? 50 : 20 + (i + 1) * (60 / (mediocampo + 1));
+        positions.push({
+          equipo,
+          x: equipo === 1 ? 35 : 65,
+          y,
+          fila: 2,
+        });
+      }
+    }
+
+    // Delantera (fila 3)
+    if (delantera > 0) {
+      const spacing = delantera > 1 ? 80 / (delantera + 1) : 50;
+      for (let i = 0; i < delantera; i++) {
+        const y = delantera === 1 ? 50 : 20 + (i + 1) * (60 / (delantera + 1));
+        positions.push({
+          equipo,
+          x: equipo === 1 ? 45 : 55,
+          y,
+          fila: 3,
+        });
+      }
+    }
+
+    return positions;
+  };
+
+  // Generar múltiples formaciones según el número de jugadores
+  if (jugadoresPorEquipo <= 3) {
+    // Para 3 o menos: 1 portero + distribución básica
+    const distribucion = [jugadoresDeCampo, 0, 0];
     formations.push({
-      name: '1-2-1-1',
-      label: '1-2-1-1',
+      name: '1-basica',
+      label: `1-${jugadoresDeCampo}-0-0`,
       positions: [
-        // Equipo 1 (izquierda)
-        { equipo: 1, x: 8, y: 50, fila: 0 }, // Portero
-        { equipo: 1, x: 20, y: 35, fila: 1 }, // Defensa 1
-        { equipo: 1, x: 20, y: 65, fila: 1 }, // Defensa 2
-        { equipo: 1, x: 35, y: 50, fila: 2 }, // Mediocampista
-        { equipo: 1, x: 45, y: 50, fila: 3 }, // Delantero
-        // Equipo 2 (derecha)
-        { equipo: 2, x: 92, y: 50, fila: 0 }, // Portero
-        { equipo: 2, x: 80, y: 35, fila: 1 }, // Defensa 1
-        { equipo: 2, x: 80, y: 65, fila: 1 }, // Defensa 2
-        { equipo: 2, x: 65, y: 50, fila: 2 }, // Mediocampista
-        { equipo: 2, x: 55, y: 50, fila: 3 }, // Delantero
+        ...generateTeamPositions(1, distribucion),
+        ...generateTeamPositions(2, distribucion),
       ],
     });
-    // 5 vs 5: 1-1-2-1 (Portero, 1 defensa, 2 mediocampistas, 1 delantero)
-    formations.push({
-      name: '1-1-2-1',
-      label: '1-1-2-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 32, y: 40, fila: 2 },
-        { equipo: 1, x: 32, y: 60, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 68, y: 40, fila: 2 },
-        { equipo: 2, x: 68, y: 60, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
+  } else if (jugadoresPorEquipo <= 5) {
+    // Para 4-5 jugadores: generar 2-3 formaciones
+    const opciones = [
+      [Math.max(1, Math.floor(jugadoresDeCampo * 0.5)), Math.max(0, Math.floor(jugadoresDeCampo * 0.3)), Math.max(0, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.5) - Math.floor(jugadoresDeCampo * 0.3))],
+      [Math.max(1, Math.floor(jugadoresDeCampo * 0.4)), Math.max(0, Math.floor(jugadoresDeCampo * 0.4)), Math.max(0, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.4) - Math.floor(jugadoresDeCampo * 0.4))],
+      [Math.max(1, Math.floor(jugadoresDeCampo * 0.6)), Math.max(0, Math.floor(jugadoresDeCampo * 0.2)), Math.max(0, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.6) - Math.floor(jugadoresDeCampo * 0.2))],
+    ];
+
+    opciones.forEach((dist, index) => {
+      // Ajustar para que sume exactamente jugadoresDeCampo
+      const total = dist[0] + dist[1] + dist[2];
+      if (total !== jugadoresDeCampo) {
+        dist[2] += jugadoresDeCampo - total;
+      }
+      if (dist[2] < 0) {
+        dist[1] += dist[2];
+        dist[2] = 0;
+      }
+      if (dist[1] < 0) {
+        dist[0] += dist[1];
+        dist[1] = 0;
+      }
+
+      formations.push({
+        name: `1-${dist[0]}-${dist[1]}-${dist[2]}-${index}`,
+        label: `1-${dist[0]}-${dist[1]}-${dist[2]}`,
+        positions: [
+          ...generateTeamPositions(1, dist),
+          ...generateTeamPositions(2, dist),
+        ],
+      });
     });
-  } else if (jugadoresPorEquipo === 6) {
-    // 6 vs 6: 1-2-2-1
-    formations.push({
-      name: '1-2-2-1',
-      label: '1-2-2-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 35, fila: 1 },
-        { equipo: 1, x: 20, y: 65, fila: 1 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 35, fila: 1 },
-        { equipo: 2, x: 80, y: 65, fila: 1 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
+  } else {
+    // Para 6 o más jugadores: generar múltiples formaciones equilibradas
+    const opciones = [
+      // Formación defensiva
+      [
+        Math.max(2, Math.floor(jugadoresDeCampo * 0.4)),
+        Math.max(1, Math.floor(jugadoresDeCampo * 0.4)),
+        Math.max(1, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.4) - Math.floor(jugadoresDeCampo * 0.4)),
       ],
-    });
-    // 6 vs 6: 1-3-1-1
-    formations.push({
-      name: '1-3-1-1',
-      label: '1-3-1-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
+      // Formación equilibrada
+      [
+        Math.max(2, Math.floor(jugadoresDeCampo * 0.35)),
+        Math.max(1, Math.floor(jugadoresDeCampo * 0.45)),
+        Math.max(1, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.35) - Math.floor(jugadoresDeCampo * 0.45)),
       ],
-    });
-  } else if (jugadoresPorEquipo === 7) {
-    // 7 vs 7: 1-3-2-1
-    formations.push({
-      name: '1-3-2-1',
-      label: '1-3-2-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
+      // Formación ofensiva
+      [
+        Math.max(2, Math.floor(jugadoresDeCampo * 0.3)),
+        Math.max(1, Math.floor(jugadoresDeCampo * 0.4)),
+        Math.max(1, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.3) - Math.floor(jugadoresDeCampo * 0.4)),
       ],
-    });
-    // 7 vs 7: 1-2-3-1
-    formations.push({
-      name: '1-2-3-1',
-      label: '1-2-3-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
+      // Formación muy ofensiva
+      [
+        Math.max(2, Math.floor(jugadoresDeCampo * 0.25)),
+        Math.max(1, Math.floor(jugadoresDeCampo * 0.35)),
+        Math.max(1, jugadoresDeCampo - Math.floor(jugadoresDeCampo * 0.25) - Math.floor(jugadoresDeCampo * 0.35)),
       ],
-    });
-    // 7 vs 7: 1-4-1-1
-    formations.push({
-      name: '1-4-1-1',
-      label: '1-4-1-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
-      ],
-    });
-  } else if (jugadoresPorEquipo === 8) {
-    // 8 vs 8: 1-3-3-1
-    formations.push({
-      name: '1-3-3-1',
-      label: '1-3-3-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 42, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 58, y: 50, fila: 3 },
-      ],
-    });
-    // 8 vs 8: 1-4-2-1
-    formations.push({
-      name: '1-4-2-1',
-      label: '1-4-2-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 8 vs 8: 1-2-4-1
-    formations.push({
-      name: '1-2-4-1',
-      label: '1-2-4-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 32, y: 25, fila: 2 },
-        { equipo: 1, x: 32, y: 40, fila: 2 },
-        { equipo: 1, x: 32, y: 60, fila: 2 },
-        { equipo: 1, x: 32, y: 75, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 68, y: 25, fila: 2 },
-        { equipo: 2, x: 68, y: 40, fila: 2 },
-        { equipo: 2, x: 68, y: 60, fila: 2 },
-        { equipo: 2, x: 68, y: 75, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 8 vs 8: 1-5-1-1
-    formations.push({
-      name: '1-5-1-1',
-      label: '1-5-1-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 20, fila: 1 },
-        { equipo: 1, x: 20, y: 35, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 65, fila: 1 },
-        { equipo: 1, x: 20, y: 80, fila: 1 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 20, fila: 1 },
-        { equipo: 2, x: 80, y: 35, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 65, fila: 1 },
-        { equipo: 2, x: 80, y: 80, fila: 1 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-  } else if (jugadoresPorEquipo === 9) {
-    // 9 vs 9: 1-4-3-1
-    formations.push({
-      name: '1-4-3-1',
-      label: '1-4-3-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 9 vs 9: 1-3-4-1
-    formations.push({
-      name: '1-3-4-1',
-      label: '1-3-4-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 9 vs 9: 1-4-2-2
-    formations.push({
-      name: '1-4-2-2',
-      label: '1-4-2-2',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 42, y: 40, fila: 3 },
-        { equipo: 1, x: 42, y: 60, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 58, y: 40, fila: 3 },
-        { equipo: 2, x: 58, y: 60, fila: 3 },
-      ],
-    });
-    // 9 vs 9: 1-5-2-1
-    formations.push({
-      name: '1-5-2-1',
-      label: '1-5-2-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 20, fila: 1 },
-        { equipo: 1, x: 20, y: 35, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 65, fila: 1 },
-        { equipo: 1, x: 20, y: 80, fila: 1 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 20, fila: 1 },
-        { equipo: 2, x: 80, y: 35, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 65, fila: 1 },
-        { equipo: 2, x: 80, y: 80, fila: 1 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-  } else if (jugadoresPorEquipo === 10) {
-    // 10 vs 10: 1-4-4-1
-    formations.push({
-      name: '1-4-4-1',
-      label: '1-4-4-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 10 vs 10: 1-4-3-2
-    formations.push({
-      name: '1-4-3-2',
-      label: '1-4-3-2',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 42, y: 40, fila: 3 },
-        { equipo: 1, x: 42, y: 60, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 58, y: 40, fila: 3 },
-        { equipo: 2, x: 58, y: 60, fila: 3 },
-      ],
-    });
-    // 10 vs 10: 1-3-4-2
-    formations.push({
-      name: '1-3-4-2',
-      label: '1-3-4-2',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 42, y: 40, fila: 3 },
-        { equipo: 1, x: 42, y: 60, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 58, y: 40, fila: 3 },
-        { equipo: 2, x: 58, y: 60, fila: 3 },
-      ],
-    });
-    // 10 vs 10: 1-5-3-1
-    formations.push({
-      name: '1-5-3-1',
-      label: '1-5-3-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 20, fila: 1 },
-        { equipo: 1, x: 20, y: 35, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 65, fila: 1 },
-        { equipo: 1, x: 20, y: 80, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 20, fila: 1 },
-        { equipo: 2, x: 80, y: 35, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 65, fila: 1 },
-        { equipo: 2, x: 80, y: 80, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-  } else if (jugadoresPorEquipo === 11) {
-    // 11 vs 11: 1-4-4-2 (clásica)
-    formations.push({
-      name: '1-4-4-2',
-      label: '1-4-4-2',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 50, y: 40, fila: 3 },
-        { equipo: 1, x: 50, y: 60, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 50, y: 40, fila: 3 },
-        { equipo: 2, x: 50, y: 60, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-4-3-3
-    formations.push({
-      name: '1-4-3-3',
-      label: '1-4-3-3',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 30, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 70, fila: 2 },
-        { equipo: 1, x: 42, y: 30, fila: 3 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 1, x: 42, y: 70, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 30, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 70, fila: 2 },
-        { equipo: 2, x: 58, y: 30, fila: 3 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-        { equipo: 2, x: 58, y: 70, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-3-5-2
-    formations.push({
-      name: '1-3-5-2',
-      label: '1-3-5-2',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 20, fila: 2 },
-        { equipo: 1, x: 35, y: 35, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 65, fila: 2 },
-        { equipo: 1, x: 35, y: 80, fila: 2 },
-        { equipo: 1, x: 50, y: 40, fila: 3 },
-        { equipo: 1, x: 50, y: 60, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 20, fila: 2 },
-        { equipo: 2, x: 65, y: 35, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 65, fila: 2 },
-        { equipo: 2, x: 65, y: 80, fila: 2 },
-        { equipo: 2, x: 50, y: 40, fila: 3 },
-        { equipo: 2, x: 50, y: 60, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-4-1-4-1 (diamante)
-    formations.push({
-      name: '1-4-1-4-1',
-      label: '1-4-1-4-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 30, y: 50, fila: 2 },
-        { equipo: 1, x: 38, y: 30, fila: 2 },
-        { equipo: 1, x: 38, y: 45, fila: 2 },
-        { equipo: 1, x: 38, y: 55, fila: 2 },
-        { equipo: 1, x: 38, y: 70, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 70, y: 50, fila: 2 },
-        { equipo: 2, x: 62, y: 30, fila: 2 },
-        { equipo: 2, x: 62, y: 45, fila: 2 },
-        { equipo: 2, x: 62, y: 55, fila: 2 },
-        { equipo: 2, x: 62, y: 70, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-3-4-3
-    formations.push({
-      name: '1-3-4-3',
-      label: '1-3-4-3',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 30, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 70, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 42, y: 30, fila: 3 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 1, x: 42, y: 70, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 30, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 70, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 58, y: 30, fila: 3 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-        { equipo: 2, x: 58, y: 70, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-5-4-1
-    formations.push({
-      name: '1-5-4-1',
-      label: '1-5-4-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 20, fila: 1 },
-        { equipo: 1, x: 20, y: 35, fila: 1 },
-        { equipo: 1, x: 20, y: 50, fila: 1 },
-        { equipo: 1, x: 20, y: 65, fila: 1 },
-        { equipo: 1, x: 20, y: 80, fila: 1 },
-        { equipo: 1, x: 35, y: 25, fila: 2 },
-        { equipo: 1, x: 35, y: 40, fila: 2 },
-        { equipo: 1, x: 35, y: 60, fila: 2 },
-        { equipo: 1, x: 35, y: 75, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 20, fila: 1 },
-        { equipo: 2, x: 80, y: 35, fila: 1 },
-        { equipo: 2, x: 80, y: 50, fila: 1 },
-        { equipo: 2, x: 80, y: 65, fila: 1 },
-        { equipo: 2, x: 80, y: 80, fila: 1 },
-        { equipo: 2, x: 65, y: 25, fila: 2 },
-        { equipo: 2, x: 65, y: 40, fila: 2 },
-        { equipo: 2, x: 65, y: 60, fila: 2 },
-        { equipo: 2, x: 65, y: 75, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
-    });
-    // 11 vs 11: 1-4-5-1
-    formations.push({
-      name: '1-4-5-1',
-      label: '1-4-5-1',
-      positions: [
-        { equipo: 1, x: 8, y: 50, fila: 0 },
-        { equipo: 1, x: 20, y: 25, fila: 1 },
-        { equipo: 1, x: 20, y: 40, fila: 1 },
-        { equipo: 1, x: 20, y: 60, fila: 1 },
-        { equipo: 1, x: 20, y: 75, fila: 1 },
-        { equipo: 1, x: 35, y: 20, fila: 2 },
-        { equipo: 1, x: 35, y: 35, fila: 2 },
-        { equipo: 1, x: 35, y: 50, fila: 2 },
-        { equipo: 1, x: 35, y: 65, fila: 2 },
-        { equipo: 1, x: 35, y: 80, fila: 2 },
-        { equipo: 1, x: 45, y: 50, fila: 3 },
-        { equipo: 2, x: 92, y: 50, fila: 0 },
-        { equipo: 2, x: 80, y: 25, fila: 1 },
-        { equipo: 2, x: 80, y: 40, fila: 1 },
-        { equipo: 2, x: 80, y: 60, fila: 1 },
-        { equipo: 2, x: 80, y: 75, fila: 1 },
-        { equipo: 2, x: 65, y: 20, fila: 2 },
-        { equipo: 2, x: 65, y: 35, fila: 2 },
-        { equipo: 2, x: 65, y: 50, fila: 2 },
-        { equipo: 2, x: 65, y: 65, fila: 2 },
-        { equipo: 2, x: 65, y: 80, fila: 2 },
-        { equipo: 2, x: 55, y: 50, fila: 3 },
-      ],
+    ];
+
+    opciones.forEach((dist, index) => {
+      // Ajustar para que sume exactamente jugadoresDeCampo
+      const total = dist[0] + dist[1] + dist[2];
+      if (total !== jugadoresDeCampo) {
+        const diff = jugadoresDeCampo - total;
+        // Ajustar la delantera primero, luego mediocampo
+        if (diff > 0) {
+          dist[2] += diff;
+        } else {
+          dist[2] = Math.max(1, dist[2] + diff);
+          if (dist[2] < 1) {
+            dist[1] += dist[2] - 1;
+            dist[2] = 1;
+          }
+        }
+      }
+
+      // Asegurar que cada línea tenga al menos 1 jugador si hay suficientes
+      if (jugadoresDeCampo >= 3) {
+        dist[0] = Math.max(1, dist[0]);
+        dist[1] = Math.max(1, dist[1]);
+        dist[2] = Math.max(1, dist[2]);
+      }
+
+      formations.push({
+        name: `1-${dist[0]}-${dist[1]}-${dist[2]}-${index}`,
+        label: `1-${dist[0]}-${dist[1]}-${dist[2]}`,
+        positions: [
+          ...generateTeamPositions(1, dist),
+          ...generateTeamPositions(2, dist),
+        ],
+      });
     });
   }
 
-  // Si no hay formaciones específicas, crear una distribución básica
+  // Si no hay formaciones, crear una distribución básica
   if (formations.length === 0) {
-    const positions: { equipo: 1 | 2; x: number; y: number; fila: number }[] = [];
-    for (let i = 0; i < jugadoresPorEquipo; i++) {
-      const equipo: 1 | 2 = i < jugadoresPorEquipo ? 1 : 2;
-      const x = equipo === 1 ? 20 + (i % 4) * 5 : 80 - (i % 4) * 5;
-      const y = 20 + Math.floor(i / 4) * 20;
-      positions.push({ equipo, x, y, fila: Math.floor(i / 4) });
-    }
+    const distribucion = [jugadoresDeCampo, 0, 0];
     formations.push({
       name: 'default',
       label: 'Distribución',
-      positions,
+      positions: [
+        ...generateTeamPositions(1, distribucion),
+        ...generateTeamPositions(2, distribucion),
+      ],
     });
   }
 

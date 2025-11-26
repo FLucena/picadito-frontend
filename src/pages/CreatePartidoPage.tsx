@@ -15,7 +15,12 @@ export const CreatePartidoPage = ({ onBack, onPartidoCreated }: CreatePartidoPag
   const inscribirse = useInscribirse();
 
   const handleSubmit = (data: PartidoFormData, inscribirseTambien: boolean) => {
-    createPartido.mutate(data, {
+    // Transformar datos: solo enviar categoriaIds si hay categorías seleccionadas
+    const partidoData: import('../types').PartidoDTO = {
+      ...data,
+      categoriaIds: data.categoriaIds && data.categoriaIds.length > 0 ? data.categoriaIds : undefined,
+    };
+    createPartido.mutate(partidoData, {
       onSuccess: (partidoCreado) => {
         if (inscribirseTambien && partidoCreado) {
           // Inscribir al creador automáticamente

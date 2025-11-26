@@ -16,8 +16,13 @@ export const EditPartidoPage = ({ partidoId, onBack, onPartidoUpdated }: EditPar
   const updatePartido = useUpdatePartido();
 
   const handleSubmit = (data: PartidoFormData) => {
+    // Transformar datos: solo enviar categoriaIds si hay categorías seleccionadas
+    const partidoData: import('../types').PartidoDTO = {
+      ...data,
+      categoriaIds: data.categoriaIds && data.categoriaIds.length > 0 ? data.categoriaIds : undefined,
+    };
     updatePartido.mutate(
-      { id: partidoId, partido: data },
+      { id: partidoId, partido: partidoData },
       {
         onSuccess: () => {
           toast.success('Partido actualizado correctamente');

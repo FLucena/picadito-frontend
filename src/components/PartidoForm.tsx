@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { partidoSchema, type PartidoFormData } from '../utils/validators';
@@ -25,6 +25,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<PartidoFormData>({
     resolver: zodResolver(partidoSchema),
         defaultValues: partido
@@ -34,20 +35,27 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
           fechaHora: partido.fechaHora.slice(0, 16),
           ubicacion: partido.ubicacion || '',
           sedeId: partido.sedeId,
-          categoriaId: partido.categoriaId,
+          categoriaIds: partido.categoriaIds || [],
           maxJugadores: partido.maxJugadores,
           creadorNombre: partido.creadorNombre,
         }
       : {
-          maxJugadores: 22,
+          maxJugadores: 10,
+          categoriaIds: [],
         },
   });
 
   const creadorNombre = watch('creadorNombre');
   const sedeId = watch('sedeId');
+  const categoriaIds = watch('categoriaIds') || [];
 
   const handleFormSubmit = (data: PartidoFormData) => {
-    onSubmit(data, inscribirseTambien);
+    // Asegurar que categoriaIds esté presente (puede ser undefined si no se seleccionó ninguna)
+    const formData = {
+      ...data,
+      categoriaIds: data.categoriaIds && data.categoriaIds.length > 0 ? data.categoriaIds : undefined,
+    };
+    onSubmit(formData, inscribirseTambien);
   };
 
   return (
@@ -146,32 +154,49 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
       </div>
 
       <div>
-        <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700 mb-1">
-          Categoría
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Categorías
         </label>
-        <select
-          id="categoriaId"
-          {...register('categoriaId', {
-            setValueAs: (value) => {
-              if (value === '' || value === null || value === undefined) {
-                return undefined;
-              }
-              const numValue = Number(value);
-              return isNaN(numValue) ? undefined : numValue;
-            },
-          })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-        >
-          <option value="">Seleccionar categoría (opcional)</option>
-          {categorias?.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.icono && `${categoria.icono} `}
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
-        {errors.categoriaId && (
-          <p className="mt-1 text-sm text-red-600">{errors.categoriaId.message}</p>
+        <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
+          {categorias && categorias.length > 0 ? (
+            <div className="space-y-2">
+              {categorias.map((categoria) => {
+                const isChecked = categoriaIds.includes(categoria.id);
+                return (
+                  <label
+                    key={categoria.id}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        const newIds = e.target.checked
+                          ? [...categoriaIds, categoria.id]
+                          : categoriaIds.filter((id) => id !== categoria.id);
+                        setValue('categoriaIds', newIds, { shouldValidate: true });
+                      }}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {categoria.icono && <span className="mr-1">{categoria.icono}</span>}
+                      {categoria.nombre}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No hay categorías disponibles</p>
+          )}
+        </div>
+        {errors.categoriaIds && (
+          <p className="mt-1 text-sm text-red-600">{errors.categoriaIds.message}</p>
+        )}
+        {categoriaIds.length > 0 && (
+          <p className="mt-1 text-xs text-gray-500">
+            {categoriaIds.length} categoría{categoriaIds.length !== 1 ? 's' : ''} seleccionada{categoriaIds.length !== 1 ? 's' : ''}
+          </p>
         )}
       </div>
 
@@ -183,10 +208,14 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
           type="number"
           id="maxJugadores"
           {...register('maxJugadores', { valueAsNumber: true })}
-          min="1"
-          max="50"
+          min="10"
+          max="22"
+          step="2"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
         />
+        <p className="mt-1 text-xs text-gray-500">
+          Solo se permiten números pares entre 10 y 22 (10, 12, 14, 16, 18, 20, 22)
+        </p>
         {errors.maxJugadores && (
           <p className="mt-1 text-sm text-red-600">{errors.maxJugadores.message}</p>
         )}

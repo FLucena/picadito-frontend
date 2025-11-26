@@ -96,8 +96,13 @@ export const PartidoDetailPage = ({
   };
 
   const handleUpdatePartido = (data: PartidoFormData) => {
+    // Transformar datos: solo enviar categoriaIds si hay categorías seleccionadas
+    const partidoData: import('../types').PartidoDTO = {
+      ...data,
+      categoriaIds: data.categoriaIds && data.categoriaIds.length > 0 ? data.categoriaIds : undefined,
+    };
     updatePartido.mutate(
-      { id: partidoId, partido: data },
+      { id: partidoId, partido: partidoData },
       {
         onSuccess: () => {
           toast.success('Partido actualizado correctamente');
@@ -175,8 +180,10 @@ export const PartidoDetailPage = ({
                 <Badge variant={getEstadoVariant(partido.estado)} size="md">
                   {getEstadoLabel(partido.estado)}
                 </Badge>
-                {partido.categoria && (
-                  <CategoriaBadge categoria={partido.categoria} size="md" />
+                {partido.categorias && partido.categorias.length > 0 && (
+                  partido.categorias.map((categoria) => (
+                    <CategoriaBadge key={categoria.id} categoria={categoria} size="md" />
+                  ))
                 )}
                 {partido.promedioCalificacion && (
                   <div className="flex items-center gap-1 text-yellow-500">

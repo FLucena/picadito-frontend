@@ -67,12 +67,14 @@ export const PartidoCard = ({
             )}
             <h3 className="text-lg font-medium text-gray-900 flex-1 leading-tight">{partido.titulo}</h3>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
             <Badge variant={getEstadoVariant(partido.estado)} size="sm">
               {getEstadoLabel(partido.estado)}
             </Badge>
-            {partido.categoria && (
-              <CategoriaBadge categoria={partido.categoria} size="sm" />
+            {partido.categorias && partido.categorias.length > 0 && (
+              partido.categorias.map((categoria) => (
+                <CategoriaBadge key={categoria.id} categoria={categoria} size="sm" />
+              ))
             )}
             {partido.promedioCalificacion && (
               <div className="flex items-center gap-0.5 text-yellow-500">

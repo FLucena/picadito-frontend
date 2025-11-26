@@ -63,7 +63,7 @@ export interface PartidoDTO {
   fechaHora: string; // ISO 8601 format
   ubicacion?: string;
   sedeId?: number;
-  categoriaId?: number;
+  categoriaIds?: number[]; // Array de IDs de categorías
   maxJugadores: number;
   creadorNombre: string;
   precio?: number;
@@ -78,8 +78,8 @@ export interface PartidoResponseDTO {
   ubicacion?: string;
   sedeId?: number;
   sede?: SedeResponseDTO;
-  categoriaId?: number;
-  categoria?: CategoriaResponseDTO;
+  categoriaIds?: number[]; // Array de IDs de categorías
+  categorias?: CategoriaResponseDTO[]; // Array de categorías completas
   maxJugadores: number;
   estado: EstadoPartido;
   creadorNombre: string;
@@ -182,7 +182,7 @@ export interface BusquedaPartidoDTO {
   ubicacion?: string;
   creadorNombre?: string;
   estado?: EstadoPartido;
-  categoriaId?: number;
+  categoriaIds?: number[]; // Array de IDs de categorías para filtrar
   fechaDesde?: string; // ISO 8601 format
   fechaHasta?: string; // ISO 8601 format
   minJugadores?: number;

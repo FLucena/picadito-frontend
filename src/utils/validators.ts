@@ -47,14 +47,21 @@ export const partidoSchema = z.object({
   sedeId: z
     .union([z.number().positive('El ID de la sede debe ser un número positivo'), z.undefined()])
     .optional(),
-  categoriaId: z
-    .union([z.number().positive('El ID de la categoría debe ser un número positivo'), z.undefined()])
+  categoriaIds: z
+    .array(z.number().positive('Cada ID de categoría debe ser un número positivo'))
+    .min(0, 'Debe ser un array válido')
     .optional(),
   maxJugadores: z
     .number()
     .int('El número máximo de jugadores debe ser un número entero')
-    .min(1, 'El número máximo de jugadores debe ser al menos 1')
-    .max(50, 'El número máximo de jugadores no puede exceder 50'),
+    .min(10, 'El número máximo de jugadores debe ser al menos 10')
+    .max(22, 'El número máximo de jugadores no puede exceder 22')
+    .refine(
+      (val) => val % 2 === 0,
+      {
+        message: 'El número máximo de jugadores debe ser par (10, 12, 14, 16, 18, 20, 22)',
+      }
+    ),
   creadorNombre: z
     .string()
     .min(1, 'El nombre del creador es requerido')

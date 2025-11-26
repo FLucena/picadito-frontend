@@ -22,7 +22,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
   const [ubicacion, setUbicacion] = useState('');
   const [creadorNombre, setCreadorNombre] = useState('');
   const [estado, setEstado] = useState<EstadoPartido | ''>('');
-  const [categoriaId, setCategoriaId] = useState<number | ''>('');
+  const [categoriaIds, setCategoriaIds] = useState<number[]>([]);
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
   const [minJugadores, setMinJugadores] = useState('');
@@ -38,7 +38,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
       ubicacion: ubicacion || undefined,
       creadorNombre: creadorNombre || undefined,
       estado: estado || undefined,
-      categoriaId: categoriaId ? Number(categoriaId) : undefined,
+      categoriaIds: categoriaIds.length > 0 ? categoriaIds : undefined,
       fechaDesde: fechaDesde || undefined,
       fechaHasta: fechaHasta || undefined,
       minJugadores: minJugadores ? parseInt(minJugadores) : undefined,
@@ -46,7 +46,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
       cuposDisponiblesMin: cuposDisponiblesMin ? parseInt(cuposDisponiblesMin) : undefined,
       soloDisponibles: soloDisponibles || undefined,
     };
-  }, [titulo, ubicacion, creadorNombre, estado, categoriaId, fechaDesde, fechaHasta, minJugadores, maxJugadores, cuposDisponiblesMin, soloDisponibles]);
+  }, [titulo, ubicacion, creadorNombre, estado, categoriaIds, fechaDesde, fechaHasta, minJugadores, maxJugadores, cuposDisponiblesMin, soloDisponibles]);
 
   const handleSearch = useCallback(() => {
     const busqueda = buildBusqueda();
@@ -74,7 +74,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
     setUbicacion('');
     setCreadorNombre('');
     setEstado('');
-    setCategoriaId('');
+    setCategoriaIds([]);
     setFechaDesde('');
     setFechaHasta('');
     setMinJugadores('');
@@ -94,12 +94,16 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
     return labels[estado] || estado;
   };
 
-  const categoriaSeleccionada = categorias?.find(c => c.id === categoriaId);
+  const categoriasSeleccionadas = categorias?.filter(c => categoriaIds.includes(c.id)) || [];
   const activeFilters = [
     { key: 'ubicacion', label: ubicacion, onRemove: () => setUbicacion('') },
     { key: 'creador', label: creadorNombre, onRemove: () => setCreadorNombre('') },
     { key: 'estado', label: estado ? getEstadoLabel(estado) : '', onRemove: () => setEstado('') },
-    { key: 'categoria', label: categoriaSeleccionada ? categoriaSeleccionada.nombre : '', onRemove: () => setCategoriaId('') },
+    ...categoriasSeleccionadas.map(cat => ({
+      key: `categoria-${cat.id}`,
+      label: cat.nombre,
+      onRemove: () => setCategoriaIds(categoriaIds.filter(id => id !== cat.id)),
+    })),
     { key: 'fechaDesde', label: fechaDesde ? 'Desde: ' + fechaDesde.split('T')[0] : '', onRemove: () => setFechaDesde('') },
     { key: 'fechaHasta', label: fechaHasta ? 'Hasta: ' + fechaHasta.split('T')[0] : '', onRemove: () => setFechaHasta('') },
     { key: 'minJugadores', label: minJugadores ? `Min: ${minJugadores}` : '', onRemove: () => setMinJugadores('') },
@@ -129,20 +133,46 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
       />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
-        <select
-          value={categoriaId}
-          onChange={(e) => setCategoriaId(e.target.value ? Number(e.target.value) : '')}
-          className="w-full px-4 py-2.5 text-base rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
-        >
-          <option value="">Todas las categorías</option>
-          {categorias?.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.icono && `${categoria.icono} `}
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Categorías</label>
+        <div className="border border-gray-300 rounded-xl p-3 max-h-48 overflow-y-auto bg-white">
+          {categorias && categorias.length > 0 ? (
+            <div className="space-y-2">
+              {categorias.map((categoria) => {
+                const isChecked = categoriaIds.includes(categoria.id);
+                return (
+                  <label
+                    key={categoria.id}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setCategoriaIds([...categoriaIds, categoria.id]);
+                        } else {
+                          setCategoriaIds(categoriaIds.filter((id) => id !== categoria.id));
+                        }
+                      }}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {categoria.icono && <span className="mr-1">{categoria.icono}</span>}
+                      {categoria.nombre}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No hay categorías disponibles</p>
+          )}
+        </div>
+        {categoriaIds.length > 0 && (
+          <p className="mt-1 text-xs text-gray-500">
+            {categoriaIds.length} categoría{categoriaIds.length !== 1 ? 's' : ''} seleccionada{categoriaIds.length !== 1 ? 's' : ''}
+          </p>
+        )}
       </div>
 
       <div>
