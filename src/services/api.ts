@@ -79,12 +79,36 @@ apiClient.interceptors.response.use(
             errorMessage = 'Error del servidor. Por favor, verifica los logs del backend o contacta al administrador.';
           }
         }
+      } else if (error.response.status === 400) {
+        // Detectar si el error está relacionado con partidos guardados
+        const url = error.config?.url || '';
+        const lowerMessage = errorMessage.toLowerCase();
+        if (url.includes('/partidos/') && error.config?.method === 'delete') {
+          if (lowerMessage.includes('guardado') || lowerMessage.includes('partidos guardados') || 
+              lowerMessage.includes('partidos seleccionados') || lowerMessage.includes('partidos-seleccionados')) {
+            errorMessage = 'No se puede eliminar el partido porque está guardado en "Mis Partidos". Primero debes eliminarlo desde la sección "Mis Partidos".';
+          } else {
+            errorMessage = errorMessage || 'Datos inválidos. Por favor, verifica la información ingresada.';
+          }
+        } else {
+          errorMessage = errorMessage || 'Datos inválidos. Por favor, verifica la información ingresada.';
+        }
       } else if (error.response.status === 409) {
-        errorMessage = errorMessage || 'Conflicto: El recurso ha sido modificado por otro usuario. Por favor, recarga la página.';
+        // Detectar si el error está relacionado con partidos guardados
+        const url = error.config?.url || '';
+        const lowerMessage = errorMessage.toLowerCase();
+        if (url.includes('/partidos/') && error.config?.method === 'delete') {
+          if (lowerMessage.includes('guardado') || lowerMessage.includes('partidos guardados') || 
+              lowerMessage.includes('partidos seleccionados') || lowerMessage.includes('partidos-seleccionados')) {
+            errorMessage = 'No se puede eliminar el partido porque está guardado en "Mis Partidos". Primero debes eliminarlo desde la sección "Mis Partidos".';
+          } else {
+            errorMessage = errorMessage || 'Conflicto: El recurso ha sido modificado por otro usuario. Por favor, recarga la página.';
+          }
+        } else {
+          errorMessage = errorMessage || 'Conflicto: El recurso ha sido modificado por otro usuario. Por favor, recarga la página.';
+        }
       } else if (error.response.status === 404) {
         errorMessage = errorMessage || 'Recurso no encontrado.';
-      } else if (error.response.status === 400) {
-        errorMessage = errorMessage || 'Datos inválidos. Por favor, verifica la información ingresada.';
       }
       
       return Promise.reject(new Error(errorMessage));
