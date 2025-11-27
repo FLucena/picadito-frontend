@@ -66,6 +66,27 @@ export const partidoSchema = z.object({
     .string()
     .min(1, 'El nombre del creador es requerido')
     .max(100, 'El nombre del creador no puede exceder 100 caracteres'),
+  precio: z
+    .any()
+    .transform((val) => {
+      if (val === '' || val === null || val === undefined) return undefined;
+      if (typeof val === 'number' && isNaN(val)) return undefined;
+      const num = typeof val === 'number' ? val : Number(val);
+      return isNaN(num) ? undefined : num;
+    })
+    .pipe(
+      z.union([
+        z.number().positive('El precio debe ser un número positivo'),
+        z.undefined(),
+      ])
+    )
+    .optional() as z.ZodType<number | undefined>,
+  imagenUrl: z
+    .string()
+    .max(500, 'La URL de la imagen no puede exceder 500 caracteres')
+    .url('La URL de la imagen debe tener un formato válido')
+    .optional()
+    .or(z.literal('')),
 });
 
 // Validators para Participantes
@@ -145,7 +166,18 @@ export const categoriaSchema = z.object({
 });
 
 export type UsuarioFormData = z.infer<typeof usuarioSchema>;
-export type PartidoFormData = z.infer<typeof partidoSchema>;
+export type PartidoFormData = {
+  titulo: string;
+  descripcion?: string | undefined;
+  fechaHora: string;
+  ubicacion?: string | undefined;
+  sedeId?: number | undefined;
+  categoriaIds?: number[] | undefined;
+  maxJugadores: number;
+  creadorNombre: string;
+  precio?: number | undefined;
+  imagenUrl?: string | undefined;
+};
 export type ParticipanteFormData = z.infer<typeof participanteSchema>;
 export type SedeFormData = z.infer<typeof sedeSchema>;
 export type CategoriaFormData = z.infer<typeof categoriaSchema>;

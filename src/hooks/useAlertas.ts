@@ -24,7 +24,7 @@ export const useMarcarAlertaLeida = () => {
 
   return useMutation({
     mutationFn: (id: number) => alertasApi.marcarLeida(id),
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       // Invalidate all alertas queries to refresh the count
       queryClient.invalidateQueries({ queryKey: ['alertas'] });
     },

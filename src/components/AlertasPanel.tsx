@@ -5,7 +5,7 @@ import { Badge } from './ui/Badge';
 import { Card } from './ui/Card';
 import { useAlertasNoLeidas, useMarcarAlertaLeida, useMarcarTodasAlertasLeidas, useDeleteAlerta } from '../hooks/useAlertas';
 import { toast } from '../utils/toast';
-import type { AlertaResponseDTO, TipoAlerta } from '../types';
+import type { TipoAlerta } from '../types';
 
 interface AlertasPanelProps {
   usuarioId: number;

@@ -13,7 +13,7 @@ interface EquiposDisplayProps {
   maxJugadores: number;
 }
 
-export const EquiposDisplay = ({ partidoId, cantidadParticipantes, maxJugadores }: EquiposDisplayProps) => {
+export const EquiposDisplay = ({ partidoId, cantidadParticipantes }: EquiposDisplayProps) => {
   const { data: equipos = [], isLoading } = useEquiposByPartido(partidoId);
   const generarEquipos = useGenerarEquipos();
   const deleteEquipos = useDeleteEquipos();

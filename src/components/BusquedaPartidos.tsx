@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, X, Filter, Calendar, MapPin, User, Users, Tag } from 'lucide-react';
+import { Search, X, Filter, Calendar, MapPin, User, Users } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';

@@ -96,7 +96,6 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
 
     // Defensa (fila 1)
     if (defensa > 0) {
-      const spacing = defensa > 1 ? 80 / (defensa + 1) : 50;
       for (let i = 0; i < defensa; i++) {
         const y = defensa === 1 ? 50 : 20 + (i + 1) * (60 / (defensa + 1));
         positions.push({
@@ -110,7 +109,6 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
 
     // Mediocampo (fila 2)
     if (mediocampo > 0) {
-      const spacing = mediocampo > 1 ? 80 / (mediocampo + 1) : 50;
       for (let i = 0; i < mediocampo; i++) {
         const y = mediocampo === 1 ? 50 : 20 + (i + 1) * (60 / (mediocampo + 1));
         positions.push({
@@ -124,7 +122,6 @@ const generateFormations = (jugadoresPorEquipo: number): Formation[] => {
 
     // Delantera (fila 3)
     if (delantera > 0) {
-      const spacing = delantera > 1 ? 80 / (delantera + 1) : 50;
       for (let i = 0; i < delantera; i++) {
         const y = delantera === 1 ? 50 : 20 + (i + 1) * (60 / (delantera + 1));
         positions.push({

@@ -70,6 +70,61 @@ describe('validators', () => {
       };
       expect(() => partidoSchema.parse(partido)).not.toThrow();
     });
+
+    it('accepts valid precio', () => {
+      const partido = {
+        titulo: 'Partido',
+        fechaHora: new Date(Date.now() + 86400000).toISOString(),
+        maxJugadores: 10,
+        creadorNombre: 'Juan Pérez',
+        precio: 5000,
+      };
+      expect(() => partidoSchema.parse(partido)).not.toThrow();
+    });
+
+    it('rejects negative precio', () => {
+      const invalidPartido = {
+        titulo: 'Partido',
+        fechaHora: new Date(Date.now() + 86400000).toISOString(),
+        maxJugadores: 10,
+        creadorNombre: 'Juan Pérez',
+        precio: -100,
+      };
+      expect(() => partidoSchema.parse(invalidPartido)).toThrow();
+    });
+
+    it('accepts valid imagenUrl', () => {
+      const partido = {
+        titulo: 'Partido',
+        fechaHora: new Date(Date.now() + 86400000).toISOString(),
+        maxJugadores: 10,
+        creadorNombre: 'Juan Pérez',
+        imagenUrl: 'https://ejemplo.com/imagen.jpg',
+      };
+      expect(() => partidoSchema.parse(partido)).not.toThrow();
+    });
+
+    it('rejects invalid imagenUrl format', () => {
+      const invalidPartido = {
+        titulo: 'Partido',
+        fechaHora: new Date(Date.now() + 86400000).toISOString(),
+        maxJugadores: 10,
+        creadorNombre: 'Juan Pérez',
+        imagenUrl: 'not-a-valid-url',
+      };
+      expect(() => partidoSchema.parse(invalidPartido)).toThrow();
+    });
+
+    it('accepts empty imagenUrl', () => {
+      const partido = {
+        titulo: 'Partido',
+        fechaHora: new Date(Date.now() + 86400000).toISOString(),
+        maxJugadores: 10,
+        creadorNombre: 'Juan Pérez',
+        imagenUrl: '',
+      };
+      expect(() => partidoSchema.parse(partido)).not.toThrow();
+    });
   });
 
   describe('participanteSchema', () => {

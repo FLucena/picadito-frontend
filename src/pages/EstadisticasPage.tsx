@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useEstadisticas, useEstadisticasPorPeriodo } from '../hooks/useEstadisticas';
-import { Calendar, Users, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
+import { Calendar, Users, DollarSign, TrendingUp } from 'lucide-react';
 import {
   BarChart,
   Bar,

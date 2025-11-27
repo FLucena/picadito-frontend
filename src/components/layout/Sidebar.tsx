@@ -8,9 +8,8 @@ import {
   MapPin,
   Menu,
   X,
-  Bell,
-  BarChart3,
-  Tag
+  Tag,
+  BarChart3
 } from 'lucide-react';
 import type { Page } from '../../App';
 import { Button } from '../ui/Button';

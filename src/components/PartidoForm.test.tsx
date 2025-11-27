@@ -41,9 +41,11 @@ describe('PartidoForm', () => {
     expect(screen.getByLabelText(/título/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/descripción/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/fecha y hora/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/categoría/i)).toBeInTheDocument();
+    expect(screen.getByText(/categorías/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/máximo de jugadores/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/nombre del creador/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/precio total/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/url de imagen/i)).toBeInTheDocument();
   });
 
   it('validates required fields', async () => {
@@ -106,6 +108,9 @@ describe('PartidoForm', () => {
       cantidadParticipantes: 5,
       estado: 'DISPONIBLE',
       creadorNombre: 'Test User',
+      fechaCreacion: new Date().toISOString(),
+      precio: 5000,
+      imagenUrl: 'https://ejemplo.com/imagen.jpg',
     };
 
     render(
@@ -118,6 +123,12 @@ describe('PartidoForm', () => {
 
     const tituloInput = screen.getByLabelText(/título/i) as HTMLInputElement;
     expect(tituloInput.value).toBe('Partido Existente');
+    
+    const precioInput = screen.getByLabelText(/precio total/i) as HTMLInputElement;
+    expect(precioInput.value).toBe('5000');
+    
+    const imagenUrlInput = screen.getByLabelText(/url de imagen/i) as HTMLInputElement;
+    expect(imagenUrlInput.value).toBe('https://ejemplo.com/imagen.jpg');
   });
 
   it('calls onCancel when cancel button is clicked', async () => {
@@ -155,6 +166,7 @@ describe('PartidoForm', () => {
       cantidadParticipantes: 5,
       estado: 'DISPONIBLE',
       creadorNombre: 'Test User',
+      fechaCreacion: new Date().toISOString(),
     };
 
     render(

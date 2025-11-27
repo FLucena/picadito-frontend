@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { partidoSchema, type PartidoFormData } from '../utils/validators';
 import { Button } from './ui/Button';
@@ -27,7 +27,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
     watch,
     setValue,
   } = useForm<PartidoFormData>({
-    resolver: zodResolver(partidoSchema),
+    resolver: zodResolver(partidoSchema) as Resolver<PartidoFormData>,
         defaultValues: partido
       ? {
           titulo: partido.titulo,
@@ -38,6 +38,8 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
           categoriaIds: partido.categoriaIds || [],
           maxJugadores: partido.maxJugadores,
           creadorNombre: partido.creadorNombre,
+          precio: partido.precio,
+          imagenUrl: partido.imagenUrl || '',
         }
       : {
           maxJugadores: 10,
@@ -234,6 +236,43 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
         />
         {errors.creadorNombre && (
           <p className="mt-1 text-sm text-red-600">{errors.creadorNombre.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="precio" className="block text-sm font-medium text-gray-700 mb-1">
+          Precio Total (opcional)
+        </label>
+        <input
+          type="number"
+          id="precio"
+          {...register('precio', { valueAsNumber: true })}
+          min="0"
+          step="0.01"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Ej: 5000.00"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Precio total del partido. Si se especifica, se calculará el costo por jugador automáticamente.
+        </p>
+        {errors.precio && (
+          <p className="mt-1 text-sm text-red-600">{errors.precio.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="imagenUrl" className="block text-sm font-medium text-gray-700 mb-1">
+          URL de Imagen (opcional)
+        </label>
+        <input
+          type="url"
+          id="imagenUrl"
+          {...register('imagenUrl')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Ej: https://ejemplo.com/imagen.jpg"
+        />
+        {errors.imagenUrl && (
+          <p className="mt-1 text-sm text-red-600">{errors.imagenUrl.message}</p>
         )}
       </div>
 
