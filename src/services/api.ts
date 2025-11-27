@@ -59,15 +59,38 @@ apiClient.interceptors.response.use(
         statusText: error.response.statusText,
         data: error.response.data,
         headers: error.response.headers,
+        url: error.config?.url,
+        method: error.config?.method,
       });
       
-      const errorMessage = error.response.data?.message || 
-                          error.response.data?.error || 
-                          `Error ${error.response.status}: ${error.response.statusText}`;
+      // Mensajes más específicos según el código de estado
+      let errorMessage = error.response.data?.message || 
+                        error.response.data?.error || 
+                        `Error ${error.response.status}: ${error.response.statusText}`;
+      
+      // Mensajes más descriptivos para errores comunes
+      if (error.response.status === 500) {
+        // Si el mensaje es genérico, intentar dar más contexto
+        if (errorMessage.includes('error inesperado') || errorMessage.includes('Internal Server Error')) {
+          const url = error.config?.url || '';
+          if (url.includes('/partidos/') && error.config?.method === 'delete') {
+            errorMessage = 'No se puede eliminar el partido. Puede tener participantes inscritos, reservas asociadas o equipos generados.';
+          } else {
+            errorMessage = 'Error del servidor. Por favor, verifica los logs del backend o contacta al administrador.';
+          }
+        }
+      } else if (error.response.status === 409) {
+        errorMessage = errorMessage || 'Conflicto: El recurso ha sido modificado por otro usuario. Por favor, recarga la página.';
+      } else if (error.response.status === 404) {
+        errorMessage = errorMessage || 'Recurso no encontrado.';
+      } else if (error.response.status === 400) {
+        errorMessage = errorMessage || 'Datos inválidos. Por favor, verifica la información ingresada.';
+      }
+      
       return Promise.reject(new Error(errorMessage));
     }
     if (error.request) {
-      return Promise.reject(new Error('No se pudo conectar con el servidor'));
+      return Promise.reject(new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.'));
     }
     return Promise.reject(error);
   }
