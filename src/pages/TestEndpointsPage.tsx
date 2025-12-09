@@ -181,8 +181,13 @@ export function TestEndpointsPage() {
           Prueba los endpoints públicos del backend en producción
         </p>
         <p className="text-sm text-gray-500 mt-1">
-          URL Base: {import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://picadito-backend.onrender.com/api')}
+          URL Base: {import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api (proxy local)' : 'https://picadito-backend.onrender.com/api')}
         </p>
+        {import.meta.env.DEV && (
+          <p className="text-xs text-yellow-600 mt-1">
+            ⚠️ En desarrollo, se usa el proxy local. Para probar producción, configura VITE_API_URL=https://picadito-backend.onrender.com/api
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

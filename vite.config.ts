@@ -4,12 +4,39 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Split node_modules into vendor chunks
+          if (id.includes('node_modules')) {
+            // React and React DOM
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            // React Query
+            if (id.includes('@tanstack/react-query')) {
+              return 'vendor-react-query';
+            }
+            // Other vendor libraries
+            return 'vendor';
+          }
+          // Split pages into separate chunks
+          if (id.includes('/pages/')) {
+            const pageName = id.split('/pages/')[1].split('.')[0];
+            return `page-${pageName}`;
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // Increase limit to 1MB
+  },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://picadito-backend.onrender.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         rewrite: (path) => path, // Keep the /api prefix
         configure: (proxy) => {
           proxy.on('error', (err) => {

@@ -32,9 +32,38 @@ import type {
 
 // En desarrollo, usar URL relativa para aprovechar el proxy de Vite
 // En producción, usar la URL de API configurada mediante variable de entorno
-// Si no se configura VITE_API_URL en producción, se usará '/api' (asumiendo mismo dominio)
-// URL de producción: https://picadito-backend.onrender.com
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://picadito-backend.onrender.com/api');
+// Si no se configura VITE_API_URL en producción, se usará la URL de producción con /api
+// URL de producción: https://picadito-backend.onrender.com/api
+const getApiUrl = () => {
+  // En desarrollo, SIEMPRE usar el proxy de Vite (/api)
+  // Esto evita problemas de CORS al hacer que las peticiones pasen por el proxy
+  if (import.meta.env.DEV) {
+    return '/api';
+  }
+  
+  // Si hay una variable de entorno configurada, usarla (solo en producción)
+  if (import.meta.env.VITE_API_URL) {
+    const url = import.meta.env.VITE_API_URL.trim();
+    // Asegurar que termine con /api si no lo tiene
+    if (url.endsWith('/api')) {
+      return url;
+    } else if (url.endsWith('/')) {
+      return `${url}api`;
+    } else {
+      return `${url}/api`;
+    }
+  }
+  
+  // En producción, usar la URL completa del backend (SIEMPRE con /api)
+  return 'https://picadito-backend.onrender.com/api';
+};
+
+const API_URL = getApiUrl();
+
+// Log para debugging
+console.log('API URL configurada:', API_URL);
+console.log('Modo desarrollo:', import.meta.env.DEV);
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -48,15 +77,14 @@ const apiClient = axios.create({
 // Interceptor de peticiones
 apiClient.interceptors.request.use(
   (config) => {
-    // Solo loguear en desarrollo
-    if (import.meta.env.DEV) {
-      console.log('API Request:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        baseURL: config.baseURL,
-        data: config.data,
-      });
-    }
+    // Loguear siempre para debugging
+    console.log('API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      data: config.data,
+    });
     return config;
   },
   (error) => {
@@ -158,8 +186,14 @@ export const partidosApi = {
   },
 
   getDisponibles: async (): Promise<PartidoResponseDTO[]> => {
-    const response = await apiClient.get<PartidoResponseDTO[]>('/partidos/disponibles');
-    return response.data;
+    const response = await apiClient.get<PartidoResponseDTO[] | PageResponseDTO<PartidoResponseDTO>>('/partidos/disponibles');
+    // Handle both array response and paginated response
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // If it's a paginated response, extract the content array
+    const data = response.data as PageResponseDTO<PartidoResponseDTO>;
+    return data.content || [];
   },
 
   getDisponiblesPaginated: async (
@@ -194,8 +228,14 @@ export const partidosApi = {
   },
 
   buscar: async (busqueda: BusquedaPartidoDTO): Promise<PartidoResponseDTO[]> => {
-    const response = await apiClient.post<PartidoResponseDTO[]>('/partidos/buscar', busqueda);
-    return response.data;
+    const response = await apiClient.post<PartidoResponseDTO[] | PageResponseDTO<PartidoResponseDTO>>('/partidos/buscar', busqueda);
+    // Handle both array response and paginated response
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // If it's a paginated response, extract the content array
+    const data = response.data as PageResponseDTO<PartidoResponseDTO>;
+    return data.content || [];
   },
 
   buscarPaginated: async (
@@ -347,8 +387,14 @@ export const sedesApi = {
 // Categorías API
 export const categoriasApi = {
   getAll: async (): Promise<CategoriaResponseDTO[]> => {
-    const response = await apiClient.get<CategoriaResponseDTO[]>('/categorias');
-    return response.data;
+    const response = await apiClient.get<CategoriaResponseDTO[] | CategoriasResponseDTO>('/categorias');
+    // Handle both array response and object with categorias property
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // If it's an object with categorias property, extract the array
+    const data = response.data as CategoriasResponseDTO;
+    return data.categorias || [];
   },
 
   getAllWithTotal: async (): Promise<CategoriasResponseDTO> => {

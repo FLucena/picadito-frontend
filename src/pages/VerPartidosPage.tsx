@@ -43,12 +43,26 @@ export const VerPartidosPage = ({
   const deletePartido = useDeletePartido();
 
   // Usar resultados de búsqueda si hay búsqueda activa, sino usar partidos disponibles
-  const partidosBase = busqueda ? partidosBusqueda : partidosDisponibles;
+  const partidosBaseRaw = busqueda ? partidosBusqueda : partidosDisponibles;
   const isLoading = busqueda ? isLoadingBusqueda : isLoadingDisponibles;
+  
+  // Normalize partidosBase to always be an array
+  const partidosBase = useMemo(() => {
+    if (!partidosBaseRaw) return [];
+    if (Array.isArray(partidosBaseRaw)) return partidosBaseRaw;
+    // Handle paginated response or object with partidos/content property
+    if (typeof partidosBaseRaw === 'object' && 'content' in partidosBaseRaw) {
+      return (partidosBaseRaw as any).content || [];
+    }
+    if (typeof partidosBaseRaw === 'object' && 'partidos' in partidosBaseRaw) {
+      return (partidosBaseRaw as any).partidos || [];
+    }
+    return [];
+  }, [partidosBaseRaw]);
 
   // Filtrar por tipo (todos o próximos)
   const partidos = useMemo(() => {
-    if (!partidosBase) return [];
+    if (!Array.isArray(partidosBase) || partidosBase.length === 0) return [];
     
     if (filterType === 'proximos') {
       const ahora = new Date();
@@ -71,7 +85,7 @@ export const VerPartidosPage = ({
   // Limpiar selección cuando cambian los partidos
   useEffect(() => {
     setSelectedPartidos(new Set());
-  }, [partidosBase, filterType, busqueda]);
+  }, [partidosBaseRaw, filterType, busqueda]);
 
   const partidosIds = useMemo(() => partidos.map((p) => p.id), [partidos]);
   const todosSeleccionados = partidos.length > 0 && partidos.every((p) => selectedPartidos.has(p.id));
@@ -130,7 +144,7 @@ export const VerPartidosPage = ({
         toast.success(`✅ ${creados} partido${creados !== 1 ? 's' : ''} creado${creados !== 1 ? 's' : ''} exitosamente`);
       }
       if (errores > 0) {
-        toast.error(`⚠️ ${errores} partido${errores !== 1 ? 's' : ''} no se pudo${errores !== 1 ? 'ron' : ''} crear`);
+        toast.error(`⚠️ ${errores} partido${errores !== 1 ? 's' : ''} no se pud${errores !== 1 ? 'ieron' : 'o'} crear`);
       }
     } catch {
       toast.error('Error al crear partidos aleatorios');
@@ -231,7 +245,7 @@ export const VerPartidosPage = ({
       setSelectedPartidos(new Set());
     }
     if (errores > 0) {
-      toast.error(`${errores} partido${errores !== 1 ? 's' : ''} no se pudo${errores !== 1 ? 'ron' : ''} eliminar`);
+      toast.error(`${errores} partido${errores !== 1 ? 's' : ''} no se pud${errores !== 1 ? 'ieron' : 'o'} eliminar`);
     }
     setShowDeleteMultipleModal(false);
   };

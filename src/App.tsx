@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
-import { MenuPrincipalPage } from './pages/MenuPrincipalPage';
-import { VerPartidosPage } from './pages/VerPartidosPage';
-import { CreatePartidoPage } from './pages/CreatePartidoPage';
-import { EditPartidoPage } from './pages/EditPartidoPage';
-import { GestionarJugadoresPage } from './pages/GestionarJugadoresPage';
-import { GestionarSedesPage } from './pages/GestionarSedesPage';
-import { GestionarCategoriasPage } from './pages/GestionarCategoriasPage';
-import { EstadisticasPage } from './pages/EstadisticasPage';
-import { MisPartidosPage } from './pages/MisPartidosPage';
-import { HistorialInscripcionesPage } from './pages/HistorialInscripcionesPage';
-import { PartidoDetailPage } from './pages/PartidoDetailPage';
-import { TestEndpointsPage } from './pages/TestEndpointsPage';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { ToastContainer } from './components/ui/Toast';
 import { Navigation } from './components/layout/Navigation';
 import { Sidebar } from './components/layout/Sidebar';
 import { usePartidosGuardados } from './hooks/usePartidosGuardados';
 import { toast } from './utils/toast';
+
+// Lazy load pages for code splitting
+const MenuPrincipalPage = lazy(() => import('./pages/MenuPrincipalPage').then(m => ({ default: m.MenuPrincipalPage })));
+const VerPartidosPage = lazy(() => import('./pages/VerPartidosPage').then(m => ({ default: m.VerPartidosPage })));
+const CreatePartidoPage = lazy(() => import('./pages/CreatePartidoPage').then(m => ({ default: m.CreatePartidoPage })));
+const EditPartidoPage = lazy(() => import('./pages/EditPartidoPage').then(m => ({ default: m.EditPartidoPage })));
+const GestionarJugadoresPage = lazy(() => import('./pages/GestionarJugadoresPage').then(m => ({ default: m.GestionarJugadoresPage })));
+const GestionarSedesPage = lazy(() => import('./pages/GestionarSedesPage').then(m => ({ default: m.GestionarSedesPage })));
+const GestionarCategoriasPage = lazy(() => import('./pages/GestionarCategoriasPage').then(m => ({ default: m.GestionarCategoriasPage })));
+const EstadisticasPage = lazy(() => import('./pages/EstadisticasPage').then(m => ({ default: m.EstadisticasPage })));
+const MisPartidosPage = lazy(() => import('./pages/MisPartidosPage').then(m => ({ default: m.MisPartidosPage })));
+const HistorialInscripcionesPage = lazy(() => import('./pages/HistorialInscripcionesPage').then(m => ({ default: m.HistorialInscripcionesPage })));
+const PartidoDetailPage = lazy(() => import('./pages/PartidoDetailPage').then(m => ({ default: m.PartidoDetailPage })));
+const TestEndpointsPage = lazy(() => import('./pages/TestEndpointsPage').then(m => ({ default: m.TestEndpointsPage })));
 
 export type Page = 
   | 'menu'
@@ -120,91 +122,97 @@ function App() {
       {/* Main Content */}
       <div className={`flex-1 flex flex-col ${showSidebar ? 'md:ml-0' : ''}`}>
         <main className={`flex-1 ${showNavigation ? 'pb-16 md:pb-0' : ''}`}>
-          {currentPage === 'menu' && (
-            <MenuPrincipalPage
-              onSelectOption={handleMenuSelect}
-              onExit={() => {
-                toast.info('Sesión cerrada');
-                setCurrentPage('ver-partidos');
-              }}
-            />
-          )}
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          }>
+            {currentPage === 'menu' && (
+              <MenuPrincipalPage
+                onSelectOption={handleMenuSelect}
+                onExit={() => {
+                  toast.info('Sesión cerrada');
+                  setCurrentPage('ver-partidos');
+                }}
+              />
+            )}
 
-          {currentPage === 'ver-partidos' && (
-            <VerPartidosPage
-              onBack={handleBackToMenu}
-              onCreatePartido={() => setCurrentPage('crear-partido')}
-              onViewPartidoDetails={handleViewPartidoDetails}
-              usuarioId={usuarioId}
-            />
-          )}
+            {currentPage === 'ver-partidos' && (
+              <VerPartidosPage
+                onBack={handleBackToMenu}
+                onCreatePartido={() => setCurrentPage('crear-partido')}
+                onViewPartidoDetails={handleViewPartidoDetails}
+                usuarioId={usuarioId}
+              />
+            )}
 
-          {currentPage === 'crear-partido' && (
-            <CreatePartidoPage
-              onBack={() => setCurrentPage('ver-partidos')}
-              onPartidoCreated={() => {
-                setCurrentPage('ver-partidos');
-                toast.success('Partido creado exitosamente');
-              }}
-            />
-          )}
+            {currentPage === 'crear-partido' && (
+              <CreatePartidoPage
+                onBack={() => setCurrentPage('ver-partidos')}
+                onPartidoCreated={() => {
+                  setCurrentPage('ver-partidos');
+                  toast.success('Partido creado exitosamente');
+                }}
+              />
+            )}
 
-          {currentPage === 'editar-partido' && editingPartidoId && (
-            <EditPartidoPage
-              partidoId={editingPartidoId}
-              onBack={() => setCurrentPage('ver-partidos')}
-              onPartidoUpdated={() => {
-                setCurrentPage('ver-partidos');
-                setEditingPartidoId(null);
-                toast.success('Partido actualizado exitosamente');
-              }}
-            />
-          )}
+            {currentPage === 'editar-partido' && editingPartidoId && (
+              <EditPartidoPage
+                partidoId={editingPartidoId}
+                onBack={() => setCurrentPage('ver-partidos')}
+                onPartidoUpdated={() => {
+                  setCurrentPage('ver-partidos');
+                  setEditingPartidoId(null);
+                  toast.success('Partido actualizado exitosamente');
+                }}
+              />
+            )}
 
-          {currentPage === 'gestionar-jugadores' && (
-            <GestionarJugadoresPage />
-          )}
+            {currentPage === 'gestionar-jugadores' && (
+              <GestionarJugadoresPage />
+            )}
 
-          {currentPage === 'gestionar-sedes' && (
-            <GestionarSedesPage />
-          )}
+            {currentPage === 'gestionar-sedes' && (
+              <GestionarSedesPage />
+            )}
 
-          {currentPage === 'gestionar-categorias' && (
-            <GestionarCategoriasPage />
-          )}
+            {currentPage === 'gestionar-categorias' && (
+              <GestionarCategoriasPage />
+            )}
 
-          {currentPage === 'estadisticas' && (
-            <EstadisticasPage />
-          )}
+            {currentPage === 'estadisticas' && (
+              <EstadisticasPage />
+            )}
 
-          {currentPage === 'mis-partidos' && (
-            <MisPartidosPage
-              onBack={handleBackToMenu}
-              usuarioId={usuarioId}
-              onViewPartidoDetails={handleViewPartidoDetails}
-            />
-          )}
+            {currentPage === 'mis-partidos' && (
+              <MisPartidosPage
+                onBack={handleBackToMenu}
+                usuarioId={usuarioId}
+                onViewPartidoDetails={handleViewPartidoDetails}
+              />
+            )}
 
-          {currentPage === 'historial-inscripciones' && (
-            <HistorialInscripcionesPage
-              onBack={handleBackToMenu}
-              usuarioId={usuarioId}
-            />
-          )}
+            {currentPage === 'historial-inscripciones' && (
+              <HistorialInscripcionesPage
+                onBack={handleBackToMenu}
+                usuarioId={usuarioId}
+              />
+            )}
 
-          {currentPage === 'partido-detail' && selectedPartidoId && (
-            <PartidoDetailPage
-              partidoId={selectedPartidoId}
-              onBack={() => setCurrentPage('ver-partidos')}
-              onPartidoUpdated={() => {
-                toast.success('Partido actualizado');
-              }}
-            />
-          )}
+            {currentPage === 'partido-detail' && selectedPartidoId && (
+              <PartidoDetailPage
+                partidoId={selectedPartidoId}
+                onBack={() => setCurrentPage('ver-partidos')}
+                onPartidoUpdated={() => {
+                  toast.success('Partido actualizado');
+                }}
+              />
+            )}
 
-          {currentPage === 'test-endpoints' && (
-            <TestEndpointsPage />
-          )}
+            {currentPage === 'test-endpoints' && (
+              <TestEndpointsPage />
+            )}
+          </Suspense>
         </main>
 
         {/* Bottom Navigation - Mobile */}

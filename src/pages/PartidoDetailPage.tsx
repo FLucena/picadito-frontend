@@ -24,8 +24,6 @@ import type { PartidoFormData, ParticipanteFormData } from '../utils/validators'
 import type { Posicion, Nivel } from '../types';
 import { EstadoPartido } from '../types';
 
-import { EstadoPartido } from '../types';
-
 const getEstadoVariant = (estado: string): 'default' | 'success' | 'warning' | 'error' | 'info' => {
   switch (estado) {
     case EstadoPartido.PROGRAMADO:

@@ -18,8 +18,6 @@ interface PartidoCardProps {
   showCheckbox?: boolean;
 }
 
-import { EstadoPartido } from '../types';
-
 const getEstadoVariant = (estado: string): 'default' | 'success' | 'warning' | 'error' | 'info' => {
   switch (estado) {
     case EstadoPartido.PROGRAMADO:

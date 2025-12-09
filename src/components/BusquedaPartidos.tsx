@@ -7,7 +7,7 @@ import { Badge } from './ui/Badge';
 import { Drawer } from './ui/Drawer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useCategorias } from '../hooks/useCategorias';
-import type { BusquedaPartidoDTO, EstadoPartido } from '../types';
+import type { BusquedaPartidoDTO, EstadoPartido, CategoriaResponseDTO } from '../types';
 import { EstadoPartido as EstadoPartidoEnum } from '../types';
 
 interface BusquedaPartidosProps {
@@ -17,7 +17,11 @@ interface BusquedaPartidosProps {
 
 export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { data: categorias } = useCategorias();
+  const { data: categoriasData } = useCategorias();
+  // Handle both array response and object with categorias property
+  const categorias = Array.isArray(categoriasData) 
+    ? categoriasData 
+    : (categoriasData as any)?.categorias || [];
   const [titulo, setTitulo] = useState('');
   const [tituloDebounced, setTituloDebounced] = useState('');
   const [ubicacion, setUbicacion] = useState('');
@@ -95,7 +99,9 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
     return labels[estado] || estado;
   };
 
-  const categoriasSeleccionadas = categorias?.filter(c => categoriaIds.includes(c.id)) || [];
+  const categoriasSeleccionadas = Array.isArray(categorias) 
+    ? categorias.filter(c => categoriaIds.includes(c.id)) 
+    : [];
   const activeFilters = [
     { key: 'ubicacion', label: ubicacion, onRemove: () => setUbicacion('') },
     { key: 'creador', label: creadorNombre, onRemove: () => setCreadorNombre('') },
@@ -138,7 +144,7 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
         <div className="border border-gray-300 rounded-xl p-3 max-h-48 overflow-y-auto bg-white">
           {categorias && categorias.length > 0 ? (
             <div className="space-y-2">
-              {categorias.map((categoria) => {
+              {categorias.map((categoria: CategoriaResponseDTO) => {
                 const isChecked = categoriaIds.includes(categoria.id);
                 return (
                   <label
