@@ -16,7 +16,7 @@ export const ParticipanteForm = ({ onSubmit, onCancel, isLoading = false }: Part
     handleSubmit,
     formState: { errors },
   } = useForm<ParticipanteFormData>({
-    resolver: zodResolver(participanteSchema),
+    resolver: zodResolver(participanteSchema) as any,
   });
 
   return (

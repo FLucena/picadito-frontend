@@ -23,8 +23,9 @@ import type {
 } from '../types';
 
 // En desarrollo, usar URL relativa para aprovechar el proxy de Vite
-// En producción, usar la URL de API configurada
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:8080/api');
+// En producción, usar la URL de API configurada mediante variable de entorno
+// Si no se configura VITE_API_URL en producción, se usará '/api' (asumiendo mismo dominio)
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '/api');
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -36,12 +37,15 @@ const apiClient = axios.create({
 // Interceptor de peticiones
 apiClient.interceptors.request.use(
   (config) => {
-    console.log('API Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      data: config.data,
-    });
+    // Solo loguear en desarrollo
+    if (import.meta.env.DEV) {
+      console.log('API Request:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        baseURL: config.baseURL,
+        data: config.data,
+      });
+    }
     return config;
   },
   (error) => {
@@ -53,15 +57,18 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ErrorResponse>) => {
-    if (error.response) {
-      console.error('API Error:', {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data,
-        headers: error.response.headers,
-        url: error.config?.url,
-        method: error.config?.method,
-      });
+      if (error.response) {
+      // Solo loguear en desarrollo
+      if (import.meta.env.DEV) {
+        console.error('API Error:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers,
+          url: error.config?.url,
+          method: error.config?.method,
+        });
+      }
       
       // Mensajes más específicos según el código de estado
       let errorMessage = error.response.data?.message || 

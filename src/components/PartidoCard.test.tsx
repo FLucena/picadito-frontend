@@ -15,14 +15,15 @@ describe('PartidoCard', () => {
     estado: 'DISPONIBLE',
     creadorNombre: 'Test User',
     ubicacion: 'Cancha Central',
-    categoria: {
+    fechaCreacion: new Date().toISOString(),
+    categorias: [{
       id: 1,
       nombre: 'Fútbol 11',
       icono: '⚽',
       color: '#1E88E5',
       fechaCreacion: new Date().toISOString(),
       fechaActualizacion: new Date().toISOString(),
-    },
+    }],
     promedioCalificacion: 4.5,
   };
 

@@ -57,6 +57,8 @@ describe('SedeForm', () => {
       direccion: 'Av. Principal 123',
       descripcion: 'Estadio moderno',
       telefono: '1234567890',
+      fechaCreacion: new Date().toISOString(),
+      fechaActualizacion: new Date().toISOString(),
     };
 
     render(
@@ -75,6 +77,12 @@ describe('SedeForm', () => {
     const sede: SedeResponseDTO = {
       id: 1,
       nombre: 'Estadio Olímpico',
+      direccion: '',
+      descripcion: '',
+      telefono: '',
+      coordenadas: '',
+      fechaCreacion: new Date().toISOString(),
+      fechaActualizacion: new Date().toISOString(),
     };
 
     render(

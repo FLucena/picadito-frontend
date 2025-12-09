@@ -80,15 +80,47 @@ npm install
 
 ## ⚙️ Configuración
 
-El frontend está configurado para conectarse automáticamente al backend en `http://localhost:8080`.
+### Desarrollo
 
-Si necesitas cambiar la URL del backend, crea un archivo `.env` en la raíz del proyecto:
+El frontend está configurado para conectarse automáticamente al backend en `http://localhost:8080` mediante un proxy de Vite.
+
+El archivo `vite.config.ts` ya está configurado con un proxy para `/api` que redirige a `http://localhost:8080` en modo desarrollo.
+
+### Producción
+
+Para producción, es **necesario** configurar la variable de entorno `VITE_API_URL` con la URL completa del backend.
+
+#### Opción 1: Archivo `.env.production`
+
+Crea un archivo `.env.production` en la raíz del proyecto:
 
 ```env
-VITE_API_URL=http://localhost:8080/api
+VITE_API_URL=https://api.tudominio.com/api
 ```
 
-El archivo `vite.config.ts` ya está configurado con un proxy para `/api` que redirige a `http://localhost:8080`.
+#### Opción 2: Variable de entorno del sistema
+
+Configura la variable de entorno antes del build:
+
+```bash
+# Linux/Mac
+export VITE_API_URL=https://api.tudominio.com/api
+npm run build
+
+# Windows (CMD)
+set VITE_API_URL=https://api.tudominio.com/api
+npm run build
+
+# Windows (PowerShell)
+$env:VITE_API_URL="https://api.tudominio.com/api"
+npm run build
+```
+
+#### Opción 3: Sin configuración (mismo dominio)
+
+Si el frontend y backend están en el mismo dominio, el frontend usará `/api` como ruta relativa.
+
+**Nota importante**: Si no configuras `VITE_API_URL` en producción, el frontend intentará usar `/api` como ruta relativa, lo que solo funcionará si el backend está en el mismo dominio.
 
 ## 🚀 Ejecución
 
@@ -103,14 +135,95 @@ La aplicación se ejecutará en `http://localhost:5173` (o el puerto disponible)
 ### Build para Producción
 
 ```bash
+# Asegúrate de configurar VITE_API_URL antes del build (ver sección Configuración)
 npm run build
 ```
 
+El build generará los archivos optimizados en la carpeta `dist/`, listos para desplegar en cualquier servidor web estático (Nginx, Apache, Vercel, Netlify, etc.).
+
+**Archivos generados:**
+- `dist/index.html` - Punto de entrada
+- `dist/assets/` - JavaScript, CSS y otros recursos optimizados
+
 ### Preview del Build
+
+Para probar el build localmente antes de desplegar:
 
 ```bash
 npm run preview
 ```
+
+Esto iniciará un servidor local que sirve los archivos de `dist/` en `http://localhost:4173`.
+
+## 🚀 Despliegue en Producción
+
+### Requisitos Previos
+
+1. **Backend configurado**: El backend debe estar desplegado y accesible
+2. **CORS configurado**: El backend debe permitir peticiones desde el dominio del frontend
+3. **Variable de entorno**: Configurar `VITE_API_URL` con la URL del backend
+
+### Pasos para Desplegar
+
+1. **Configurar la URL del backend**:
+   ```bash
+   # Crear archivo .env.production
+   echo "VITE_API_URL=https://api.tudominio.com/api" > .env.production
+   ```
+
+2. **Generar el build**:
+   ```bash
+   npm run build
+   ```
+
+3. **Desplegar la carpeta `dist/`**:
+   - **Vercel/Netlify**: Conecta tu repositorio y configura el build command como `npm run build` y el output directory como `dist`
+   - **Servidor propio**: Sube el contenido de `dist/` a tu servidor web (Nginx, Apache, etc.)
+   - **CDN**: Sube los archivos a tu CDN (Cloudflare, AWS CloudFront, etc.)
+
+### Configuración del Servidor Web
+
+#### Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name tudominio.com;
+    root /ruta/a/dist;
+    index index.html;
+
+    # SPA routing - redirigir todas las rutas a index.html
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache para assets estáticos
+    location /assets {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+#### Apache (.htaccess)
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
+### Verificación Post-Despliegue
+
+1. Abre la aplicación en el navegador
+2. Abre las herramientas de desarrollador (F12)
+3. Verifica en la consola que no haya errores de conexión
+4. Verifica en la pestaña Network que las peticiones al backend se realicen correctamente
 
 ## 📁 Estructura del Proyecto
 
@@ -439,10 +552,18 @@ La aplicación está diseñada con un enfoque mobile-first:
 
 ### Error de conexión con el backend
 
+**En desarrollo:**
 - Verifica que el backend esté ejecutándose en `http://localhost:8080`
 - Revisa la consola del navegador (F12) para ver errores
 - Verifica que CORS esté configurado correctamente en el backend
 - Revisa la configuración del proxy en `vite.config.ts`
+
+**En producción:**
+- Verifica que `VITE_API_URL` esté configurada correctamente antes del build
+- Verifica que el backend esté accesible desde el dominio del frontend
+- Revisa la consola del navegador (F12) para ver errores de CORS o conexión
+- Verifica que el backend tenga configurado CORS para permitir peticiones desde el dominio del frontend
+- Si usas rutas relativas (`/api`), verifica que el backend esté en el mismo dominio o configurado como proxy
 
 ### Errores de compilación
 

@@ -6,7 +6,7 @@ interface CategoriaBadgeProps {
     icono?: string;
     color?: string;
   };
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md';
 }
 
 export const CategoriaBadge = ({ categoria, size = 'sm' }: CategoriaBadgeProps) => {
@@ -23,7 +23,7 @@ export const CategoriaBadge = ({ categoria, size = 'sm' }: CategoriaBadgeProps) 
   return (
     <Badge
       variant="info"
-      size={size}
+      size={size as 'sm' | 'md'}
       style={badgeStyle}
       className="flex items-center gap-1"
     >

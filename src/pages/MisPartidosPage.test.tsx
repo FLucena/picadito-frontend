@@ -5,7 +5,7 @@ import { MisPartidosPage } from './MisPartidosPage';
 import { usePartidosSeleccionados, useEliminarPartidoSeleccionado, useVaciarPartidosSeleccionados } from '../hooks/usePartidosGuardados';
 import { useCrearReservaDesdePartidosSeleccionados } from '../hooks/useInscripciones';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import type { PartidosSeleccionadosResponseDTO } from '../types';
+import type { PartidosSeleccionadosResponseDTO, ReservaResponseDTO } from '../types';
 
 // Mock de hooks
 vi.mock('../hooks/usePartidosGuardados', () => ({
@@ -32,9 +32,9 @@ vi.mock('../services/api', () => ({
 describe('MisPartidosPage', () => {
   const mockOnBack = vi.fn();
   const mockOnViewPartidoDetails = vi.fn();
-  const mockEliminarPartido = { mutate: vi.fn(), isPending: false };
-  const mockVaciarPartidos = { mutate: vi.fn(), isPending: false };
-  const mockCrearReserva = { mutate: vi.fn(), isPending: false };
+  const mockEliminarPartido = { mutate: vi.fn(), isPending: false } as unknown as UseMutationResult<void, Error, { usuarioId: number; lineaPartidoSeleccionadoId: number }, unknown>;
+  const mockVaciarPartidos = { mutate: vi.fn(), isPending: false } as unknown as UseMutationResult<void, Error, number, unknown>;
+  const mockCrearReserva = { mutate: vi.fn(), isPending: false } as unknown as UseMutationResult<ReservaResponseDTO, Error, number, unknown>;
 
   const mockPartidosSeleccionados = {
     items: [
@@ -61,9 +61,9 @@ describe('MisPartidosPage', () => {
       data: mockPartidosSeleccionados,
       isLoading: false,
     } as unknown as UseQueryResult<PartidosSeleccionadosResponseDTO, Error>);
-    vi.mocked(useEliminarPartidoSeleccionado).mockReturnValue(mockEliminarPartido as unknown as UseMutationResult<void, Error, { usuarioId: number; lineaPartidoSeleccionadoId: number }, unknown>);
-    vi.mocked(useVaciarPartidosSeleccionados).mockReturnValue(mockVaciarPartidos as unknown as UseMutationResult<void, Error, number, unknown>);
-    vi.mocked(useCrearReservaDesdePartidosSeleccionados).mockReturnValue(mockCrearReserva as unknown as UseMutationResult<unknown, Error, number, unknown>);
+    vi.mocked(useEliminarPartidoSeleccionado).mockReturnValue(mockEliminarPartido);
+    vi.mocked(useVaciarPartidosSeleccionados).mockReturnValue(mockVaciarPartidos);
+    vi.mocked(useCrearReservaDesdePartidosSeleccionados).mockReturnValue(mockCrearReserva);
   });
 
   it('renders list of partidos seleccionados', () => {

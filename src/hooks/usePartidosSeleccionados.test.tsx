@@ -41,12 +41,15 @@ describe('usePartidosSeleccionados hooks', () => {
 
   describe('usePartidosSeleccionados', () => {
     it('fetches partidos seleccionados', async () => {
-      const mockData = {
+      const mockData: PartidosSeleccionadosResponseDTO = {
         id: 1,
         usuarioId: 1,
         items: [],
+        totalPartidos: 0,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
       };
-      vi.mocked(partidosSeleccionadosApi.getByUsuario).mockResolvedValue(mockData as PartidosSeleccionadosResponseDTO);
+      vi.mocked(partidosSeleccionadosApi.getByUsuario).mockResolvedValue(mockData);
 
       const { result } = renderHook(() => usePartidosSeleccionados(1), {
         wrapper: createWrapper(),
@@ -60,12 +63,15 @@ describe('usePartidosSeleccionados hooks', () => {
 
   describe('useAgregarPartidoSeleccionado', () => {
     it('adds partido to seleccionados', async () => {
-      const mockData = {
+      const mockData: PartidosSeleccionadosResponseDTO = {
         id: 1,
         usuarioId: 1,
         items: [{ id: 1, partidoId: 1, cantidad: 2 }],
+        totalPartidos: 1,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
       };
-      vi.mocked(partidosSeleccionadosApi.agregarPartido).mockResolvedValue(mockData as PartidosSeleccionadosResponseDTO);
+      vi.mocked(partidosSeleccionadosApi.agregarPartido).mockResolvedValue(mockData);
 
       const { result } = renderHook(() => useAgregarPartidoSeleccionado(), {
         wrapper: createWrapper(),
@@ -80,12 +86,15 @@ describe('usePartidosSeleccionados hooks', () => {
 
   describe('useActualizarCantidadPartidoSeleccionado', () => {
     it('updates cantidad', async () => {
-      const mockData = {
+      const mockData: PartidosSeleccionadosResponseDTO = {
         id: 1,
         usuarioId: 1,
         items: [{ id: 1, partidoId: 1, cantidad: 3 }],
+        totalPartidos: 1,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
       };
-      vi.mocked(partidosSeleccionadosApi.actualizarCantidad).mockResolvedValue(mockData as PartidosSeleccionadosResponseDTO);
+      vi.mocked(partidosSeleccionadosApi.actualizarCantidad).mockResolvedValue(mockData);
 
       const { result } = renderHook(() => useActualizarCantidadPartidoSeleccionado(), {
         wrapper: createWrapper(),

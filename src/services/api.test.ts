@@ -39,7 +39,22 @@ describe('API Services', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Obtener la instancia mockeada (la misma que usa api.ts)
-    mockAxiosInstance = axios.create({}) as typeof mockAxiosInstance;
+    const mockInstance = (axios as any).__mockInstance;
+    if (mockInstance) {
+      mockAxiosInstance = {
+        get: mockInstance.get,
+        post: mockInstance.post,
+        put: mockInstance.put,
+        delete: mockInstance.delete,
+      };
+    } else {
+      mockAxiosInstance = {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+      };
+    }
   });
 
   describe('partidosApi', () => {
