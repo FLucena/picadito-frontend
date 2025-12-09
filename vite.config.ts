@@ -12,7 +12,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'recharts'],
+    include: ['react', 'react-dom'],
     esbuildOptions: {
       target: 'esnext',
     },
@@ -31,8 +31,6 @@ export default defineConfig({
             if (id.includes('@tanstack/react-query')) {
               return 'vendor-react-query';
             }
-            // Recharts - don't split it separately to ensure React is available
-            // Keep it with other vendors so React can be shared
             // Other vendor libraries
             return 'vendor';
           }

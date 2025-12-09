@@ -3,21 +3,22 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useEstadisticas, useEstadisticasPorPeriodo } from '../hooks/useEstadisticas';
 import { Calendar, Users, DollarSign, TrendingUp } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+// Temporarily disabled recharts
+// import {
+//   BarChart,
+//   Bar,
+//   PieChart,
+//   Pie,
+//   Cell,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   Tooltip,
+//   Legend,
+//   ResponsiveContainer,
+// } from 'recharts';
 
-const COLORS = ['#1E88E5', '#43A047', '#FB8C00', '#E53935', '#8E24AA', '#00ACC1'];
+// const COLORS = ['#1E88E5', '#43A047', '#FB8C00', '#E53935', '#8E24AA', '#00ACC1'];
 
 export const EstadisticasPage = () => {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -173,25 +174,16 @@ export const EstadisticasPage = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Partidos por Categoría</h3>
             {partidosPorCategoriaData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={partidosPorCategoriaData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${percent !== undefined ? (percent * 100).toFixed(0) : 0}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {partidosPorCategoriaData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="text-center py-12 text-gray-500">
+                Gráfico temporalmente deshabilitado (recharts removido)
+                <div className="mt-4 space-y-2">
+                  {partidosPorCategoriaData.map((item, index) => (
+                    <div key={index} className="text-sm">
+                      {item.name}: {item.value}
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
                 No hay datos disponibles
@@ -203,22 +195,16 @@ export const EstadisticasPage = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Partidos Populares</h3>
             {datos.partidosPopulares && datos.partidosPopulares.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={datos.partidosPopulares.slice(0, 5)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="titulo"
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    tick={{ fontSize: 10 }}
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="porcentajeOcupacion" fill="#1E88E5" name="Ocupación %" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="text-center py-12 text-gray-500">
+                Gráfico temporalmente deshabilitado (recharts removido)
+                <div className="mt-4 space-y-2">
+                  {datos.partidosPopulares.slice(0, 5).map((partido: any, index: number) => (
+                    <div key={index} className="text-sm">
+                      {partido.titulo}: {partido.porcentajeOcupacion}%
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
                 No hay datos disponibles
