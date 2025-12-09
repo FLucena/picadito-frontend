@@ -20,18 +20,29 @@ import type {
   ReporteVentasDTO,
   ReportePartidosDTO,
   ReporteUsuariosDTO,
+  PageResponseDTO,
+  BusquedaPartidoDTO,
+  CategoriasResponseDTO,
+  SedesResponseDTO,
+  RegisterRequestDTO,
+  LoginRequestDTO,
+  RefreshTokenRequestDTO,
+  AuthResponseDTO,
 } from '../types';
 
 // En desarrollo, usar URL relativa para aprovechar el proxy de Vite
 // En producción, usar la URL de API configurada mediante variable de entorno
 // Si no se configura VITE_API_URL en producción, se usará '/api' (asumiendo mismo dominio)
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '/api');
+// URL de producción: https://picadito-backend.onrender.com
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://picadito-backend.onrender.com/api');
 
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
+  withCredentials: true, // Para CORS con credenciales
 });
 
 // Interceptor de peticiones
@@ -134,8 +145,32 @@ export const partidosApi = {
     return response.data;
   },
 
+  getAllPaginated: async (
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'fechaHora',
+    direction: 'ASC' | 'DESC' = 'ASC'
+  ): Promise<PageResponseDTO<PartidoResponseDTO>> => {
+    const response = await apiClient.get<PageResponseDTO<PartidoResponseDTO>>(
+      `/partidos?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
+    return response.data;
+  },
+
   getDisponibles: async (): Promise<PartidoResponseDTO[]> => {
     const response = await apiClient.get<PartidoResponseDTO[]>('/partidos/disponibles');
+    return response.data;
+  },
+
+  getDisponiblesPaginated: async (
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'fechaHora',
+    direction: 'ASC' | 'DESC' = 'ASC'
+  ): Promise<PageResponseDTO<PartidoResponseDTO>> => {
+    const response = await apiClient.get<PageResponseDTO<PartidoResponseDTO>>(
+      `/partidos/disponibles?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
     return response.data;
   },
 
@@ -158,8 +193,22 @@ export const partidosApi = {
     await apiClient.delete(`/partidos/${id}`);
   },
 
-  buscar: async (busqueda: import('../types').BusquedaPartidoDTO): Promise<PartidoResponseDTO[]> => {
+  buscar: async (busqueda: BusquedaPartidoDTO): Promise<PartidoResponseDTO[]> => {
     const response = await apiClient.post<PartidoResponseDTO[]>('/partidos/buscar', busqueda);
+    return response.data;
+  },
+
+  buscarPaginated: async (
+    busqueda: BusquedaPartidoDTO,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'fechaHora',
+    direction: 'ASC' | 'DESC' = 'ASC'
+  ): Promise<PageResponseDTO<PartidoResponseDTO>> => {
+    const response = await apiClient.post<PageResponseDTO<PartidoResponseDTO>>(
+      `/partidos/buscar?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`,
+      busqueda
+    );
     return response.data;
   },
 
@@ -265,6 +314,11 @@ export const sedesApi = {
     return response.data;
   },
 
+  getAllWithTotal: async (): Promise<SedesResponseDTO> => {
+    const response = await apiClient.get<SedesResponseDTO>('/sedes');
+    return response.data;
+  },
+
   getById: async (id: number): Promise<SedeResponseDTO> => {
     const response = await apiClient.get<SedeResponseDTO>(`/sedes/${id}`);
     return response.data;
@@ -294,6 +348,11 @@ export const sedesApi = {
 export const categoriasApi = {
   getAll: async (): Promise<CategoriaResponseDTO[]> => {
     const response = await apiClient.get<CategoriaResponseDTO[]>('/categorias');
+    return response.data;
+  },
+
+  getAllWithTotal: async (): Promise<CategoriasResponseDTO> => {
+    const response = await apiClient.get<CategoriasResponseDTO>('/categorias');
     return response.data;
   },
 
@@ -442,6 +501,39 @@ export const adminApi = {
     const response = await apiClient.get<ReporteUsuariosDTO>(
       `/admin/reportes/usuarios?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
     );
+    return response.data;
+  },
+};
+
+// Auth API
+export const authApi = {
+  register: async (data: RegisterRequestDTO): Promise<AuthResponseDTO> => {
+    const response = await apiClient.post<AuthResponseDTO>('/auth/register', data);
+    return response.data;
+  },
+
+  login: async (data: LoginRequestDTO): Promise<AuthResponseDTO> => {
+    const response = await apiClient.post<AuthResponseDTO>('/auth/login', data);
+    return response.data;
+  },
+
+  refresh: async (data: RefreshTokenRequestDTO): Promise<AuthResponseDTO> => {
+    const response = await apiClient.post<AuthResponseDTO>('/auth/refresh', data);
+    return response.data;
+  },
+};
+
+// Health Check API (usa baseURL sin /api)
+export const healthApi = {
+  check: async (): Promise<{ status: string }> => {
+    const baseURL = API_URL.replace('/api', '');
+    const response = await axios.get<{ status: string }>(`${baseURL}/actuator/health`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      withCredentials: true,
+    });
     return response.data;
   },
 };

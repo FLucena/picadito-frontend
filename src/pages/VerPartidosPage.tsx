@@ -13,6 +13,7 @@ import { useAgregarPartidoGuardado } from '../hooks/usePartidosGuardados';
 import { generateRandomPartidos } from '../utils/generateRandomPartidos';
 import { toast } from '../utils/toast';
 import type { BusquedaPartidoDTO } from '../types';
+import { EstadoPartido } from '../types';
 
 type FilterType = 'todos' | 'proximos';
 
@@ -55,7 +56,7 @@ export const VerPartidosPage = ({
         .filter((partido) => {
           const fechaPartido = new Date(partido.fechaHora);
           return fechaPartido > ahora && 
-                 (partido.estado === 'DISPONIBLE' || partido.estado === 'COMPLETO');
+                 (partido.estado === EstadoPartido.PROGRAMADO || partido.estado === EstadoPartido.EN_CURSO);
         })
         .sort((a, b) => {
           const fechaA = new Date(a.fechaHora).getTime();
@@ -198,7 +199,7 @@ export const VerPartidosPage = ({
       setSelectedPartidos(new Set());
     }
     if (errores > 0) {
-      toast.error(`${errores} partido${errores !== 1 ? 's' : ''} no se pudo${errores !== 1 ? 'ron' : ''} guardar`);
+      toast.error(`${errores} partido${errores !== 1 ? 's' : ''} no se pud${errores !== 1 ? 'ieron' : 'o'} guardar`);
     }
   };
 

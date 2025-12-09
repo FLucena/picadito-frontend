@@ -3,6 +3,7 @@ import { render, screen } from '../test/testUtils';
 import userEvent from '@testing-library/user-event';
 import { PartidoCard } from './PartidoCard';
 import type { PartidoResponseDTO } from '../types';
+import { EstadoPartido } from '../types';
 
 describe('PartidoCard', () => {
   const mockPartido: PartidoResponseDTO = {
@@ -12,7 +13,7 @@ describe('PartidoCard', () => {
     fechaHora: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     maxJugadores: 10,
     cantidadParticipantes: 5,
-    estado: 'DISPONIBLE',
+    estado: EstadoPartido.PROGRAMADO,
     creadorNombre: 'Test User',
     ubicacion: 'Cancha Central',
     fechaCreacion: new Date().toISOString(),
@@ -56,7 +57,7 @@ describe('PartidoCard', () => {
       />
     );
 
-    expect(screen.getByText('Disponible')).toBeInTheDocument();
+    expect(screen.getByText('Programado')).toBeInTheDocument();
   });
 
   it('calls onViewDetails when clicked', async () => {

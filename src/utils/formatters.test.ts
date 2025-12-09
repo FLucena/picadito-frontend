@@ -105,8 +105,8 @@ describe('formatters', () => {
 
   describe('getEstadoBadgeColor', () => {
     it('returns correct color for each estado', () => {
-      expect(getEstadoBadgeColor(EstadoPartido.DISPONIBLE)).toContain('green');
-      expect(getEstadoBadgeColor(EstadoPartido.COMPLETO)).toContain('yellow');
+      expect(getEstadoBadgeColor(EstadoPartido.PROGRAMADO)).toContain('green');
+      expect(getEstadoBadgeColor(EstadoPartido.EN_CURSO)).toContain('blue');
       expect(getEstadoBadgeColor(EstadoPartido.FINALIZADO)).toContain('gray');
       expect(getEstadoBadgeColor(EstadoPartido.CANCELADO)).toContain('red');
     });
@@ -114,8 +114,8 @@ describe('formatters', () => {
 
   describe('getEstadoLabel', () => {
     it('returns correct label for each estado', () => {
-      expect(getEstadoLabel(EstadoPartido.DISPONIBLE)).toBe('Disponible');
-      expect(getEstadoLabel(EstadoPartido.COMPLETO)).toBe('Completo');
+      expect(getEstadoLabel(EstadoPartido.PROGRAMADO)).toBe('Programado');
+      expect(getEstadoLabel(EstadoPartido.EN_CURSO)).toBe('En Curso');
       expect(getEstadoLabel(EstadoPartido.FINALIZADO)).toBe('Finalizado');
       expect(getEstadoLabel(EstadoPartido.CANCELADO)).toBe('Cancelado');
     });

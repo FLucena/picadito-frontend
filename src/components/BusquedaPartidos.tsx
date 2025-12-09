@@ -8,6 +8,7 @@ import { Drawer } from './ui/Drawer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useCategorias } from '../hooks/useCategorias';
 import type { BusquedaPartidoDTO, EstadoPartido } from '../types';
+import { EstadoPartido as EstadoPartidoEnum } from '../types';
 
 interface BusquedaPartidosProps {
   onSearch: (busqueda: BusquedaPartidoDTO) => void;
@@ -86,8 +87,8 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
 
   const getEstadoLabel = (estado: EstadoPartido | '') => {
     const labels: Record<string, string> = {
-      'DISPONIBLE': 'Disponible',
-      'COMPLETO': 'Completo',
+      'PROGRAMADO': 'Programado',
+      'EN_CURSO': 'En Curso',
       'FINALIZADO': 'Finalizado',
       'CANCELADO': 'Cancelado',
     };
@@ -183,10 +184,10 @@ export const BusquedaPartidos = ({ onSearch, onClear }: BusquedaPartidosProps) =
           className="w-full px-4 py-2.5 text-base rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
         >
           <option value="">Todos</option>
-          <option value="DISPONIBLE">Disponible</option>
-          <option value="COMPLETO">Completo</option>
-          <option value="FINALIZADO">Finalizado</option>
-          <option value="CANCELADO">Cancelado</option>
+          <option value={EstadoPartidoEnum.PROGRAMADO}>Programado</option>
+          <option value={EstadoPartidoEnum.EN_CURSO}>En Curso</option>
+          <option value={EstadoPartidoEnum.FINALIZADO}>Finalizado</option>
+          <option value={EstadoPartidoEnum.CANCELADO}>Cancelado</option>
         </select>
       </div>
 

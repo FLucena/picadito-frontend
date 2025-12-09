@@ -10,6 +10,7 @@ import { EstadisticasPage } from './pages/EstadisticasPage';
 import { MisPartidosPage } from './pages/MisPartidosPage';
 import { HistorialInscripcionesPage } from './pages/HistorialInscripcionesPage';
 import { PartidoDetailPage } from './pages/PartidoDetailPage';
+import { TestEndpointsPage } from './pages/TestEndpointsPage';
 import { ToastContainer } from './components/ui/Toast';
 import { Navigation } from './components/layout/Navigation';
 import { Sidebar } from './components/layout/Sidebar';
@@ -27,7 +28,8 @@ export type Page =
   | 'estadisticas'
   | 'mis-partidos'
   | 'historial-inscripciones'
-  | 'partido-detail';
+  | 'partido-detail'
+  | 'test-endpoints';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('ver-partidos');
@@ -198,6 +200,10 @@ function App() {
                 toast.success('Partido actualizado');
               }}
             />
+          )}
+
+          {currentPage === 'test-endpoints' && (
+            <TestEndpointsPage />
           )}
         </main>
 

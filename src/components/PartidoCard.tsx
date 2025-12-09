@@ -6,6 +6,7 @@ import { CategoriaBadge } from './CategoriaBadge';
 import { formatFechaHoraCorta, formatFechaRelativa, getEstadoLabel } from '../utils/formatters';
 import { Calendar, MapPin, Users, CalendarCheck, AlertCircle, Clock, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import type { PartidoResponseDTO } from '../types';
+import { EstadoPartido } from '../types';
 
 interface PartidoCardProps {
   partido: PartidoResponseDTO;
@@ -17,15 +18,17 @@ interface PartidoCardProps {
   showCheckbox?: boolean;
 }
 
+import { EstadoPartido } from '../types';
+
 const getEstadoVariant = (estado: string): 'default' | 'success' | 'warning' | 'error' | 'info' => {
   switch (estado) {
-    case 'DISPONIBLE':
+    case EstadoPartido.PROGRAMADO:
       return 'success';
-    case 'COMPLETO':
-      return 'warning';
-    case 'FINALIZADO':
+    case EstadoPartido.EN_CURSO:
+      return 'info';
+    case EstadoPartido.FINALIZADO:
       return 'default';
-    case 'CANCELADO':
+    case EstadoPartido.CANCELADO:
       return 'error';
     default:
       return 'default';
@@ -43,7 +46,7 @@ export const PartidoCard = ({
 }: PartidoCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const progress = (partido.cantidadParticipantes / partido.maxJugadores) * 100;
-  const isDisponible = partido.estado === 'DISPONIBLE';
+  const isDisponible = partido.estado === EstadoPartido.PROGRAMADO;
   const cuposDisponibles = partido.maxJugadores - partido.cantidadParticipantes;
   const pocosCupos = cuposDisponibles > 0 && cuposDisponibles <= 3;
   const fechaPartido = new Date(partido.fechaHora);

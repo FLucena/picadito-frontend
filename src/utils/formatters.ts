@@ -86,10 +86,10 @@ export const getStockBadgeColor = (stock: number): string => {
 // Funciones para Partidos
 export const getEstadoBadgeColor = (estado: EstadoPartido): string => {
   switch (estado) {
-    case EstadoPartido.DISPONIBLE:
+    case EstadoPartido.PROGRAMADO:
       return 'bg-green-100 text-green-800';
-    case EstadoPartido.COMPLETO:
-      return 'bg-yellow-100 text-yellow-800';
+    case EstadoPartido.EN_CURSO:
+      return 'bg-blue-100 text-blue-800';
     case EstadoPartido.FINALIZADO:
       return 'bg-gray-100 text-gray-800';
     case EstadoPartido.CANCELADO:
@@ -101,10 +101,10 @@ export const getEstadoBadgeColor = (estado: EstadoPartido): string => {
 
 export const getEstadoLabel = (estado: EstadoPartido): string => {
   switch (estado) {
-    case EstadoPartido.DISPONIBLE:
-      return 'Disponible';
-    case EstadoPartido.COMPLETO:
-      return 'Completo';
+    case EstadoPartido.PROGRAMADO:
+      return 'Programado';
+    case EstadoPartido.EN_CURSO:
+      return 'En Curso';
     case EstadoPartido.FINALIZADO:
       return 'Finalizado';
     case EstadoPartido.CANCELADO:

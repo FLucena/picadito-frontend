@@ -3,6 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { PartidoCard } from '../components/PartidoCard';
 import { usePartidos } from '../hooks/usePartidos';
+import { EstadoPartido } from '../types';
 
 interface ProximosPartidosPageProps {
   onBack: () => void;
@@ -19,7 +20,7 @@ export const ProximosPartidosPage = ({ onBack, onViewPartidoDetails }: ProximosP
           const fechaPartido = new Date(partido.fechaHora);
           const ahora = new Date();
           return fechaPartido > ahora && 
-                 (partido.estado === 'DISPONIBLE' || partido.estado === 'COMPLETO');
+                 (partido.estado === EstadoPartido.PROGRAMADO || partido.estado === EstadoPartido.EN_CURSO);
         })
         .sort((a, b) => {
           const fechaA = new Date(a.fechaHora).getTime();

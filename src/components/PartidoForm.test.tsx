@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '../test/testUtils';
 import userEvent from '@testing-library/user-event';
 import { PartidoForm } from './PartidoForm';
 import type { PartidoResponseDTO } from '../types';
+import { EstadoPartido } from '../types';
 
 vi.mock('../hooks/useSedes', () => ({
   useSedes: vi.fn(() => ({
@@ -106,7 +107,7 @@ describe('PartidoForm', () => {
       fechaHora: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       maxJugadores: 10,
       cantidadParticipantes: 5,
-      estado: 'DISPONIBLE',
+      estado: EstadoPartido.PROGRAMADO,
       creadorNombre: 'Test User',
       fechaCreacion: new Date().toISOString(),
       precio: 5000,
@@ -164,7 +165,7 @@ describe('PartidoForm', () => {
       fechaHora: new Date().toISOString(),
       maxJugadores: 10,
       cantidadParticipantes: 5,
-      estado: 'DISPONIBLE',
+      estado: EstadoPartido.PROGRAMADO,
       creadorNombre: 'Test User',
       fechaCreacion: new Date().toISOString(),
     };

@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Tag,
-  BarChart3
+  BarChart3,
+  TestTube
 } from 'lucide-react';
 import type { Page } from '../../App';
 import { Button } from '../ui/Button';
@@ -52,6 +53,7 @@ export const Sidebar = ({
     { id: 'gestionar-sedes', label: 'Sedes', icon: MapPin, group: 'secondary' },
     { id: 'gestionar-categorias', label: 'Categorías', icon: Tag, group: 'admin' },
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3, group: 'admin' },
+    { id: 'test-endpoints', label: 'Prueba Endpoints', icon: TestTube, group: 'dev' },
   ];
 
   const isActive = (pageId: Page) => {
@@ -64,6 +66,7 @@ export const Sidebar = ({
   const mainItems = navItems.filter(item => item.group === 'main');
   const secondaryItems = navItems.filter(item => item.group === 'secondary');
   const adminItems = navItems.filter(item => item.group === 'admin');
+  const devItems = navItems.filter(item => item.group === 'dev');
 
   return (
     <aside
@@ -167,6 +170,35 @@ export const Sidebar = ({
                 </p>
                 <div className="space-y-1">
                   {adminItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => onNavigate(item.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${
+                          active
+                            ? 'bg-primary-50 text-primary-700 font-medium'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 flex-shrink-0 ${active ? 'text-primary-600' : ''}`} />
+                        <span className="flex-1">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {/* Dev Items */}
+            {devItems.length > 0 && (
+              <div className="pt-4 border-t border-gray-200">
+                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Desarrollo
+                </p>
+                <div className="space-y-1">
+                  {devItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.id);
                     

@@ -22,16 +22,19 @@ import {
 import { toast } from '../utils/toast';
 import type { PartidoFormData, ParticipanteFormData } from '../utils/validators';
 import type { Posicion, Nivel } from '../types';
+import { EstadoPartido } from '../types';
+
+import { EstadoPartido } from '../types';
 
 const getEstadoVariant = (estado: string): 'default' | 'success' | 'warning' | 'error' | 'info' => {
   switch (estado) {
-    case 'DISPONIBLE':
+    case EstadoPartido.PROGRAMADO:
       return 'success';
-    case 'COMPLETO':
-      return 'warning';
-    case 'FINALIZADO':
+    case EstadoPartido.EN_CURSO:
+      return 'info';
+    case EstadoPartido.FINALIZADO:
       return 'default';
-    case 'CANCELADO':
+    case EstadoPartido.CANCELADO:
       return 'error';
     default:
       return 'default';
@@ -165,7 +168,7 @@ export const PartidoDetailPage = ({
   }
 
   const progress = (partido.cantidadParticipantes / partido.maxJugadores) * 100;
-  const isDisponible = partido.estado === 'DISPONIBLE';
+  const isDisponible = partido.estado === EstadoPartido.PROGRAMADO;
   const canInscribirse = isDisponible && partido.cantidadParticipantes < partido.maxJugadores;
 
   return (

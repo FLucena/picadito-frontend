@@ -27,14 +27,70 @@ export interface ErrorResponse {
   error: string;
   message: string;
   path: string;
+  correlationId?: string;
+  validationErrors?: {
+    [fieldName: string]: string;
+  };
+}
+
+// Paginación
+export interface PageResponseDTO<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+// Autenticación
+export interface RegisterRequestDTO {
+  nombre: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequestDTO {
+  email: string;
+  password: string;
+}
+
+export interface RefreshTokenRequestDTO {
+  refreshToken: string;
+}
+
+export interface AuthResponseDTO {
+  token: string;
+  refreshToken: string;
+  email: string;
+  nombre: string;
+  rol: RolUsuario;
+  message: string;
+}
+
+// Respuestas de listas
+export interface CategoriasResponseDTO {
+  categorias: CategoriaResponseDTO[];
+  total: number;
+}
+
+export interface SedesResponseDTO {
+  sedes: SedeResponseDTO[];
+  total: number;
 }
 
 // Partidos y Participantes
 export const EstadoPartido = {
-  DISPONIBLE: 'DISPONIBLE',
-  COMPLETO: 'COMPLETO',
+  PROGRAMADO: 'PROGRAMADO',
+  EN_CURSO: 'EN_CURSO',
   FINALIZADO: 'FINALIZADO',
   CANCELADO: 'CANCELADO',
+  // Mantener compatibilidad con valores antiguos
+  DISPONIBLE: 'PROGRAMADO',
+  COMPLETO: 'FINALIZADO',
 } as const;
 
 export type EstadoPartido = typeof EstadoPartido[keyof typeof EstadoPartido];

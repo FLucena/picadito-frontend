@@ -4,6 +4,7 @@ import { ProximosPartidosPage } from './ProximosPartidosPage';
 import { usePartidos } from '../hooks/usePartidos';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { PartidoResponseDTO } from '../types';
+import { EstadoPartido } from '../types';
 
 vi.mock('../hooks/usePartidos');
 
@@ -22,7 +23,7 @@ describe('ProximosPartidosPage', () => {
           id: 1,
           titulo: 'Partido Futuro',
           fechaHora: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          estado: 'DISPONIBLE',
+          estado: EstadoPartido.PROGRAMADO,
           maxJugadores: 10,
           cantidadParticipantes: 5,
         },
