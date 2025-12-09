@@ -9,13 +9,13 @@ export default defineConfig({
     })
   ],
   resolve: {
-    alias: {
-      'react': 'react',
-      'react-dom': 'react-dom',
-    },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: ['react', 'react-dom', 'recharts'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   build: {
     rollupOptions: {
@@ -23,7 +23,7 @@ export default defineConfig({
         manualChunks: (id) => {
           // Split node_modules into vendor chunks
           if (id.includes('node_modules')) {
-            // React and React DOM
+            // React and React DOM - must be in same chunk for forwardRef to work
             if (id.includes('react') || id.includes('react-dom')) {
               return 'vendor-react';
             }
@@ -31,6 +31,8 @@ export default defineConfig({
             if (id.includes('@tanstack/react-query')) {
               return 'vendor-react-query';
             }
+            // Recharts - don't split it separately to ensure React is available
+            // Keep it with other vendors so React can be shared
             // Other vendor libraries
             return 'vendor';
           }
@@ -41,6 +43,10 @@ export default defineConfig({
           }
         },
       },
+    },
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
     },
     chunkSizeWarningLimit: 1000, // Increase limit to 1MB
   },
