@@ -16,40 +16,56 @@ interface Jugador {
 }
 
 export const GestionarJugadoresPage = () => {
-  const { data: partidos } = usePartidos();
+  const { data: partidos, isLoading, error } = usePartidos();
 
   // Extraer jugadores únicos de todos los participantes
   const jugadoresMap = new Map<string, Jugador>();
   
-  partidos?.forEach((partido) => {
-    partido.participantes?.forEach((participante) => {
-      const key = participante.nombre.toLowerCase();
-      if (!jugadoresMap.has(key)) {
-        jugadoresMap.set(key, {
-          id: participante.id.toString(),
-          nombre: participante.nombre,
-          apodo: participante.apodo,
-          posicion: participante.posicion,
-          nivel: participante.nivel,
-          partidosParticipados: 1,
-          partidosIds: [partido.id],
-          ultimaParticipacion: participante.fechaInscripcion,
+  if (partidos && Array.isArray(partidos)) {
+    partidos.forEach((partido) => {
+      if (partido?.participantes && Array.isArray(partido.participantes)) {
+        partido.participantes.forEach((participante) => {
+          if (!participante?.nombre) return; // Saltar participantes sin nombre
+          
+          const key = participante.nombre.toLowerCase();
+          if (!jugadoresMap.has(key)) {
+            jugadoresMap.set(key, {
+              id: participante.id?.toString() || key,
+              nombre: participante.nombre,
+              apodo: participante.apodo,
+              posicion: participante.posicion,
+              nivel: participante.nivel,
+              partidosParticipados: 1,
+              partidosIds: partido.id ? [partido.id] : [],
+              ultimaParticipacion: participante.fechaInscripcion || undefined,
+            });
+          } else {
+            const jugador = jugadoresMap.get(key)!;
+            jugador.partidosParticipados += 1;
+            if (partido.id) {
+              jugador.partidosIds.push(partido.id);
+            }
+            // Actualizar última participación si es más reciente
+            if (participante.fechaInscripcion) {
+              try {
+                const fechaParticipacion = new Date(participante.fechaInscripcion);
+                if (!isNaN(fechaParticipacion.getTime())) {
+                  const fechaUltima = jugador.ultimaParticipacion 
+                    ? new Date(jugador.ultimaParticipacion)
+                    : new Date(0);
+                  if (!isNaN(fechaUltima.getTime()) && fechaParticipacion > fechaUltima) {
+                    jugador.ultimaParticipacion = participante.fechaInscripcion;
+                  }
+                }
+              } catch (e) {
+                // Ignorar errores de fecha inválida
+              }
+            }
+          }
         });
-      } else {
-        const jugador = jugadoresMap.get(key)!;
-        jugador.partidosParticipados += 1;
-        jugador.partidosIds.push(partido.id);
-        // Actualizar última participación si es más reciente
-        const fechaParticipacion = new Date(participante.fechaInscripcion);
-        const fechaUltima = jugador.ultimaParticipacion 
-          ? new Date(jugador.ultimaParticipacion)
-          : new Date(0);
-        if (fechaParticipacion > fechaUltima) {
-          jugador.ultimaParticipacion = participante.fechaInscripcion;
-        }
       }
     });
-  });
+  }
 
   const jugadores = Array.from(jugadoresMap.values())
     .sort((a, b) => b.partidosParticipados - a.partidosParticipados); // Ordenar por más participaciones
@@ -65,7 +81,27 @@ export const GestionarJugadoresPage = () => {
           </div>
         </div>
 
-        {jugadores.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Cargando jugadores...</p>
+          </div>
+        ) : error ? (
+          <Card className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+              <User className="h-8 w-8 text-red-600" />
+            </div>
+            <p className="text-red-600 text-lg font-semibold mb-2">Error al cargar jugadores</p>
+            <p className="text-gray-600 text-sm mb-4">
+              {error instanceof Error ? error.message : 'No se pudieron cargar los jugadores. Por favor, intenta nuevamente.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Reintentar
+            </button>
+          </Card>
+        ) : jugadores.length === 0 ? (
           <Card className="text-center py-12">
             <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 text-lg mb-4">No hay jugadores registrados aún</p>
@@ -114,14 +150,22 @@ export const GestionarJugadoresPage = () => {
                         {jugador.partidosParticipados} partido{jugador.partidosParticipados !== 1 ? 's' : ''}
                       </span>
                     </div>
-                    {jugador.ultimaParticipacion && (
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Calendar className="h-3 w-3" />
-                        <span>
-                          Última participación: {new Date(jugador.ultimaParticipacion).toLocaleDateString('es-ES')}
-                        </span>
-                      </div>
-                    )}
+                    {jugador.ultimaParticipacion && (() => {
+                      try {
+                        const fecha = new Date(jugador.ultimaParticipacion);
+                        if (isNaN(fecha.getTime())) return null;
+                        return (
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Calendar className="h-3 w-3" />
+                            <span>
+                              Última participación: {fecha.toLocaleDateString('es-ES')}
+                            </span>
+                          </div>
+                        );
+                      } catch {
+                        return null;
+                      }
+                    })()}
                   </div>
                 </Card>
               ))}
