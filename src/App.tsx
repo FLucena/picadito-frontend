@@ -206,6 +206,9 @@ function App() {
           usuarioId={usuarioId}
           onNavigateToPartido={handleViewPartidoDetails}
           onLogout={handleLogout}
+          userEmail={localStorage.getItem('userEmail') || undefined}
+          userNombre={localStorage.getItem('userNombre') || undefined}
+          userRol={localStorage.getItem('userRol') || undefined}
         />
       )}
 

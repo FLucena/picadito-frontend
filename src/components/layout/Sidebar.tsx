@@ -11,7 +11,9 @@ import {
   Tag,
   BarChart3,
   TestTube,
-  LogOut
+  LogOut,
+  Mail,
+  Shield
 } from 'lucide-react';
 import type { Page } from '../../App';
 import { Button } from '../ui/Button';
@@ -27,6 +29,9 @@ interface SidebarProps {
   usuarioId?: number;
   onNavigateToPartido?: (partidoId: number) => void;
   onLogout?: () => void;
+  userEmail?: string;
+  userNombre?: string;
+  userRol?: string;
 }
 
 interface NavItem {
@@ -45,7 +50,10 @@ export const Sidebar = ({
   onToggleCollapse,
   usuarioId = 1,
   onNavigateToPartido,
-  onLogout
+  onLogout,
+  userEmail,
+  userNombre,
+  userRol
 }: SidebarProps) => {
   const navItems: NavItem[] = [
     { id: 'ver-partidos', label: 'Ver Partidos', icon: Calendar, group: 'main' },
@@ -226,6 +234,53 @@ export const Sidebar = ({
           </>
         )}
       </nav>
+
+      {/* User Profile Section */}
+      {!isCollapsed && (userNombre || userEmail) && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+              <User className="h-5 w-5 text-primary-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              {userNombre && (
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {userNombre}
+                </p>
+              )}
+              {userEmail && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Mail className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                  <p className="text-xs text-gray-600 truncate">
+                    {userEmail}
+                  </p>
+                </div>
+              )}
+              {userRol && (
+                <div className="flex items-center gap-1 mt-1">
+                  <Shield className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    userRol === 'ADMIN' 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {userRol === 'ADMIN' ? 'Administrador' : 'Cliente'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Collapsed User Icon */}
+      {isCollapsed && (userNombre || userEmail) && (
+        <div className="p-4 border-t border-gray-200 flex justify-center">
+          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 text-primary-600" />
+          </div>
+        </div>
+      )}
 
       {/* Logout Button */}
       {onLogout && (
