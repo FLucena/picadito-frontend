@@ -1,4 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { logger } from '../utils/logger';
+import { getToken, getRefreshToken, setTokens, clearAuthData } from '../utils/storage';
 import type {
   ErrorResponse,
   PartidoDTO,
@@ -30,6 +32,75 @@ import type {
   AuthResponseDTO,
 } from '../types';
 
+/**
+ * Validates that a URL is safe (HTTPS only in production, or relative path)
+ */
+function validateApiUrl(url: string): boolean {
+  try {
+    // Relative URLs are always safe
+    if (url.startsWith('/')) {
+      return true;
+    }
+    
+    const parsed = new URL(url);
+    
+    // In production, only allow HTTPS
+    if (!import.meta.env.DEV && parsed.protocol !== 'https:') {
+      logger.warn('Invalid API URL protocol. Only HTTPS is allowed in production.');
+      return false;
+    }
+    
+    // Allow http in development, https in production
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return false;
+    }
+    
+    // Block javascript:, data:, file:, etc.
+    if (['javascript:', 'data:', 'file:', 'vbscript:'].includes(parsed.protocol)) {
+      return false;
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Allowed origins for API requests (whitelist)
+ */
+const ALLOWED_ORIGINS = [
+  'https://picadito-backend.onrender.com',
+  'https://unpicadito.vercel.app',
+  'http://localhost:8080', // Development only
+  'http://127.0.0.1:8080', // Development only
+];
+
+/**
+ * Validates that the origin is in the whitelist
+ */
+function validateOrigin(url: string): boolean {
+  try {
+    // Relative URLs are always safe
+    if (url.startsWith('/')) {
+      return true;
+    }
+    
+    const parsed = new URL(url);
+    const origin = `${parsed.protocol}//${parsed.host}`;
+    
+    // In development, allow localhost
+    if (import.meta.env.DEV) {
+      return ALLOWED_ORIGINS.includes(origin) || origin.includes('localhost') || origin.includes('127.0.0.1');
+    }
+    
+    // In production, only allow whitelisted origins
+    return ALLOWED_ORIGINS.includes(origin);
+  } catch {
+    return false;
+  }
+}
+
 // En desarrollo, usar URL relativa para aprovechar el proxy de Vite
 // En producción, usar la URL de API configurada mediante variable de entorno
 // Si no se configura VITE_API_URL en producción, se usará la URL de producción con /api
@@ -44,6 +115,19 @@ const getApiUrl = () => {
   // Si hay una variable de entorno configurada, usarla (solo en producción)
   if (import.meta.env.VITE_API_URL) {
     const url = import.meta.env.VITE_API_URL.trim();
+    
+    // Validate URL security
+    if (!validateApiUrl(url)) {
+      logger.error('Invalid API URL from environment variable. Using default.');
+      return 'https://picadito-backend.onrender.com/api';
+    }
+    
+    // Validate origin
+    if (!validateOrigin(url)) {
+      logger.error('API URL origin not in whitelist. Using default.');
+      return 'https://picadito-backend.onrender.com/api';
+    }
+    
     // Asegurar que termine con /api si no lo tiene
     if (url.endsWith('/api')) {
       return url;
@@ -55,15 +139,26 @@ const getApiUrl = () => {
   }
   
   // En producción, usar la URL completa del backend (SIEMPRE con /api)
-  return 'https://picadito-backend.onrender.com/api';
+  const defaultUrl = 'https://picadito-backend.onrender.com/api';
+  
+  // Validate default URL
+  if (!validateApiUrl(defaultUrl) || !validateOrigin(defaultUrl)) {
+    logger.error('Default API URL is invalid. This should not happen.');
+    throw new Error('Invalid API configuration');
+  }
+  
+  return defaultUrl;
 };
 
 const API_URL = getApiUrl();
 
-// Log para debugging
-console.log('API URL configurada:', API_URL);
-console.log('Modo desarrollo:', import.meta.env.DEV);
-console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+// Log para debugging (solo en desarrollo)
+logger.log('API URL configurada:', API_URL);
+logger.log('Modo desarrollo:', import.meta.env.DEV);
+logger.log('VITE_API_URL:', import.meta.env.VITE_API_URL ? '[CONFIGURADA]' : '[NO CONFIGURADA]');
+
+// Timeout de 30 segundos para todas las peticiones
+const REQUEST_TIMEOUT = 30000;
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -72,24 +167,23 @@ const apiClient = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: true, // Para CORS con credenciales
+  timeout: REQUEST_TIMEOUT, // Timeout de 30 segundos
 });
 
 // Interceptor de peticiones
 apiClient.interceptors.request.use(
   (config) => {
     // Agregar token de autenticación si existe
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (token) {
+    const token = getToken();
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Loguear siempre para debugging
-    console.log('API Request:', {
+    // Loguear solo en desarrollo (sin datos sensibles)
+    logger.log('API Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      data: config.data,
       hasAuth: !!token,
     });
     return config;
@@ -124,17 +218,13 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response) {
-      // Solo loguear en desarrollo
-      if (import.meta.env.DEV) {
-        console.error('API Error:', {
-          status: error.response.status,
-          statusText: error.response.statusText,
-          data: error.response.data,
-          headers: error.response.headers,
-          url: error.config?.url,
-          method: error.config?.method,
-        });
-      }
+      // Solo loguear en desarrollo (sin datos sensibles)
+      logger.error('API Error:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
       
       // Mensajes más específicos según el código de estado
       let errorMessage = error.response.data?.message || 
@@ -162,16 +252,15 @@ apiClient.interceptors.response.use(
         originalRequest._retry = true;
         isRefreshing = true;
 
-        const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
+        const refreshToken = getRefreshToken();
         
         if (refreshToken) {
           try {
             const response = await authApi.refresh({ refreshToken });
             const { token: newToken, refreshToken: newRefreshToken } = response;
             
-            // Store new tokens
-            localStorage.setItem('token', newToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            // Store new tokens using storage utility
+            setTokens(newToken, newRefreshToken);
             
             // Update the original request with new token
             if (originalRequest.headers) {
@@ -187,13 +276,7 @@ apiClient.interceptors.response.use(
             // Refresh failed - clear tokens and reject
             processQueue(refreshError, null);
             isRefreshing = false;
-            localStorage.removeItem('token');
-            sessionStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-            sessionStorage.removeItem('refreshToken');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userNombre');
-            localStorage.removeItem('userRol');
+            clearAuthData();
             
             // Reload page to show login
             if (window.location.pathname !== '/') {
@@ -205,13 +288,7 @@ apiClient.interceptors.response.use(
         } else {
           // No refresh token available - clear tokens
           isRefreshing = false;
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          sessionStorage.removeItem('refreshToken');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userNombre');
-          localStorage.removeItem('userRol');
+          clearAuthData();
           errorMessage = errorMessage || 'Sesión expirada. Por favor, inicia sesión nuevamente.';
         }
       }

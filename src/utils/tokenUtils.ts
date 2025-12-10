@@ -2,6 +2,8 @@
  * Utility functions for JWT token management
  */
 
+import { logger } from './logger';
+
 /**
  * Decodes a JWT token without verification (client-side only)
  * Note: This does not verify the signature, only extracts the payload
@@ -19,7 +21,7 @@ export function decodeToken(token: string): any | null {
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Error decoding token:', error);
+    logger.error('Error decoding token:', error);
     return null;
   }
 }

@@ -3,6 +3,8 @@ import { authApi } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { toast } from '../utils/toast';
+import { logger } from '../utils/logger';
+import { setTokens, setUserInfo, setRememberMe } from '../utils/storage';
 import { LogIn } from 'lucide-react';
 
 interface LoginPageProps {
@@ -13,6 +15,7 @@ interface LoginPageProps {
 export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMeState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,14 +30,14 @@ export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) =>
     try {
       const response = await authApi.login({ email, password });
       
-      // Almacenar tokens
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      // Set remember me preference before storing tokens
+      setRememberMe(rememberMe);
+      
+      // Almacenar tokens usando utilidad de storage
+      setTokens(response.token, response.refreshToken);
       
       // Almacenar información del usuario
-      localStorage.setItem('userEmail', response.email);
-      localStorage.setItem('userNombre', response.nombre);
-      localStorage.setItem('userRol', response.rol);
+      setUserInfo(response.email, response.nombre, response.rol);
       
       toast.success(`Bienvenido, ${response.nombre}!`);
       
@@ -45,8 +48,11 @@ export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) =>
         rol: response.rol,
       });
     } catch (error: any) {
-      console.error('Error en login:', error);
-      toast.error(error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      logger.error('Error en login:', error);
+      // Mensaje genérico para evitar timing attacks
+      toast.error('Error al iniciar sesión. Verifica tus credenciales.');
+      // Limpiar campos de contraseña después de error
+      setPassword('');
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +83,9 @@ export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) =>
               placeholder="tu@email.com"
               required
               disabled={isLoading}
+              autoComplete="email"
+              autoCapitalize="off"
+              autoCorrect="off"
             />
           </div>
 
@@ -93,7 +102,25 @@ export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) =>
               placeholder="••••••••"
               required
               disabled={isLoading}
+              autoComplete="current-password"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMeState(e.target.checked)}
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              disabled={isLoading}
+            />
+            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+              Recordarme
+            </label>
           </div>
 
           <Button

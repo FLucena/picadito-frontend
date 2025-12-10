@@ -1,10 +1,12 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy, useCallback } from 'react';
 import { ToastContainer } from './components/ui/Toast';
 import { Navigation } from './components/layout/Navigation';
 import { Sidebar } from './components/layout/Sidebar';
 import { usePartidosGuardados } from './hooks/usePartidosGuardados';
+import { useInactivity } from './hooks/useInactivity';
 import { toast } from './utils/toast';
 import { isTokenValid } from './utils/tokenUtils';
+import { getToken, clearAuthData, cleanupExpiredTokens, getUserEmail, getUserNombre, getUserRol } from './utils/storage';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -44,9 +46,12 @@ interface UserData {
 }
 
 function App() {
+  // Cleanup expired tokens on mount
+  cleanupExpiredTokens();
+  
   // Check if user is authenticated - validate token exists and is not expired
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     return isTokenValid(token);
   });
   
@@ -73,15 +78,14 @@ function App() {
   // Validate token on mount and periodically
   useEffect(() => {
     const validateToken = () => {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       if (!isTokenValid(token)) {
         // Token is invalid or expired - clear auth state
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userNombre');
-        localStorage.removeItem('userRol');
+        clearAuthData();
         setIsAuthenticated(false);
+      } else {
+        // Cleanup expired tokens periodically
+        cleanupExpiredTokens();
       }
     };
 
@@ -106,16 +110,23 @@ function App() {
     setShowRegister(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userNombre');
-    localStorage.removeItem('userRol');
+  const handleLogout = useCallback(() => {
+    clearAuthData();
     setIsAuthenticated(false);
     setCurrentPage('ver-partidos');
     toast.info('Sesión cerrada');
-  };
+  }, []);
+
+  // Auto-logout after 30 minutes of inactivity (only when authenticated)
+  useInactivity(
+    30 * 60 * 1000, // 30 minutes
+    useCallback(() => {
+      if (isAuthenticated) {
+        handleLogout();
+        toast.info('Sesión cerrada por inactividad');
+      }
+    }, [isAuthenticated, handleLogout])
+  );
 
   const handleNavigate = (page: Page) => {
     setCurrentPage(page);
@@ -206,9 +217,9 @@ function App() {
           usuarioId={usuarioId}
           onNavigateToPartido={handleViewPartidoDetails}
           onLogout={handleLogout}
-          userEmail={localStorage.getItem('userEmail') || undefined}
-          userNombre={localStorage.getItem('userNombre') || undefined}
-          userRol={localStorage.getItem('userRol') || undefined}
+          userEmail={getUserEmail() || undefined}
+          userNombre={getUserNombre() || undefined}
+          userRol={getUserRol() || undefined}
         />
       )}
 

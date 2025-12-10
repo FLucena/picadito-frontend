@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Security Headers -->
+    <!-- X-Frame-Options: Prevent clickjacking -->
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    
+    <!-- X-Content-Type-Options: Prevent MIME type sniffing -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    
+    <!-- Referrer Policy: Control referrer information -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    
+    <!-- Permissions Policy: Control browser features -->
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+    
+    <!-- Content Security Policy -->
+    <!-- Note: 'unsafe-inline' and 'unsafe-eval' are required for Vite in development -->
+    <!-- In production, consider tightening this policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://picadito-backend.onrender.com https://unpicadito.vercel.app; frame-ancestors 'none';" />
+    
     <title>picadito-frontend</title>
   </head>
   <body>

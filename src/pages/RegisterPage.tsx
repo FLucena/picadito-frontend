@@ -3,6 +3,8 @@ import { authApi } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { toast } from '../utils/toast';
+import { logger } from '../utils/logger';
+import { setTokens, setUserInfo, setRememberMe } from '../utils/storage';
 import { UserPlus } from 'lucide-react';
 
 interface RegisterPageProps {
@@ -15,6 +17,7 @@ export const RegisterPage = ({ onRegisterSuccess, onBackToLogin }: RegisterPageP
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [rememberMe, setRememberMeState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const validatePassword = (): string | null => {
@@ -54,14 +57,14 @@ export const RegisterPage = ({ onRegisterSuccess, onBackToLogin }: RegisterPageP
     try {
       const response = await authApi.register({ nombre, email, password });
       
-      // Almacenar tokens
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      // Set remember me preference before storing tokens
+      setRememberMe(rememberMe);
+      
+      // Almacenar tokens usando utilidad de storage
+      setTokens(response.token, response.refreshToken);
       
       // Almacenar información del usuario
-      localStorage.setItem('userEmail', response.email);
-      localStorage.setItem('userNombre', response.nombre);
-      localStorage.setItem('userRol', response.rol);
+      setUserInfo(response.email, response.nombre, response.rol);
       
       toast.success(`¡Bienvenido, ${response.nombre}! Tu cuenta ha sido creada exitosamente.`);
       
@@ -72,8 +75,11 @@ export const RegisterPage = ({ onRegisterSuccess, onBackToLogin }: RegisterPageP
         rol: response.rol,
       });
     } catch (error: any) {
-      console.error('Error en registro:', error);
+      logger.error('Error en registro:', error);
       toast.error(error.message || 'Error al registrarse. Por favor, intenta nuevamente.');
+      // Limpiar campos de contraseña después de error
+      setPassword('');
+      setConfirmPassword('');
     } finally {
       setIsLoading(false);
     }
@@ -139,6 +145,10 @@ export const RegisterPage = ({ onRegisterSuccess, onBackToLogin }: RegisterPageP
               required
               disabled={isLoading}
               minLength={8}
+              autoComplete="new-password"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
             <p className="mt-1 text-xs text-gray-500">
               Mínimo 8 caracteres, con mayúscula, minúscula y número
@@ -158,7 +168,25 @@ export const RegisterPage = ({ onRegisterSuccess, onBackToLogin }: RegisterPageP
               placeholder="••••••••"
               required
               disabled={isLoading}
+              autoComplete="new-password"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMeState(e.target.checked)}
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              disabled={isLoading}
+            />
+            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+              Recordarme
+            </label>
           </div>
 
           <Button
