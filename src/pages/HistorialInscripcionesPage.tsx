@@ -49,12 +49,15 @@ const getEstadoReservaLabel = (estado: EstadoReserva) => {
 };
 
 export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripcionesPageProps) => {
-  const { data: reservas, isLoading } = useReservasPorUsuario(usuarioId);
+  const { data: reservasRaw, isLoading, error } = useReservasPorUsuario(usuarioId);
   const cancelarReserva = useCancelarReserva();
   const [showCancelarModal, setShowCancelarModal] = useState(false);
   const [inscripcionACancelar, setInscripcionACancelar] = useState<number | null>(null);
   const [showCalificacionModal, setShowCalificacionModal] = useState(false);
   const [partidoACalificar, setPartidoACalificar] = useState<number | null>(null);
+
+  // Normalizar reservas para asegurar que sea un array
+  const reservas = Array.isArray(reservasRaw) ? reservasRaw : [];
 
   const handleCancelar = (reservaId: number) => {
     setInscripcionACancelar(reservaId);
@@ -95,7 +98,23 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
           <p className="text-gray-600">Todas tus reservas confirmadas</p>
         </div>
 
-        {!reservas || reservas.length === 0 ? (
+        {error ? (
+          <Card className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+              <Calendar className="h-8 w-8 text-red-600" />
+            </div>
+            <p className="text-red-600 text-lg font-semibold mb-2">Error al cargar historial</p>
+            <p className="text-gray-600 text-sm mb-4">
+              {error instanceof Error ? error.message : 'No se pudo cargar el historial de reservas. Por favor, intenta nuevamente.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Reintentar
+            </button>
+          </Card>
+        ) : !reservas || reservas.length === 0 ? (
           <Card className="text-center py-12">
             <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">No tienes reservas registradas</p>
@@ -120,9 +139,16 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">
-                      {reserva.lineasReserva.length} partido{reserva.lineasReserva.length !== 1 ? 's' : ''} • 
+                      {Array.isArray(reserva.lineasReserva) ? reserva.lineasReserva.length : 0} partido{Array.isArray(reserva.lineasReserva) && reserva.lineasReserva.length !== 1 ? 's' : ''} • 
                       {' '}Total: ${reserva.total?.toFixed(2) || '0.00'} • 
-                      {' '}Creada el {new Date(reserva.fechaCreacion).toLocaleDateString('es-ES')}
+                      {' '}Creada el {reserva.fechaCreacion ? (() => {
+                        try {
+                          const fecha = new Date(reserva.fechaCreacion);
+                          return isNaN(fecha.getTime()) ? 'Fecha inválida' : fecha.toLocaleDateString('es-ES');
+                        } catch {
+                          return 'Fecha inválida';
+                        }
+                      })() : 'Fecha no disponible'}
                     </p>
                   </div>
                   {reserva.estado !== 'CANCELADO' && reserva.estado !== 'FINALIZADO' && (
@@ -140,7 +166,8 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
                 </div>
 
                 <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
-                  {reserva.lineasReserva.map((linea) => (
+                  {Array.isArray(reserva.lineasReserva) && reserva.lineasReserva.length > 0 ? (
+                    reserva.lineasReserva.map((linea) => (
                     <div
                       key={linea.id}
                       className="bg-gray-50 rounded-lg p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3"
@@ -175,7 +202,10 @@ export const HistorialInscripcionesPage = ({ usuarioId = 1 }: HistorialInscripci
                         </Button>
                       )}
                     </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No hay líneas de reserva disponibles</p>
+                  )}
                 </div>
               </Card>
             ))}

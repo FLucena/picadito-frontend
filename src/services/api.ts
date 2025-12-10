@@ -350,21 +350,22 @@ apiClient.interceptors.response.use(
     // Manejo de errores de red (servidor no responde, no está levantado, timeout, etc.)
     if (error.request) {
       let networkErrorMessage = 'No se pudo conectar con el servidor.';
+      const aclaracionServidor = ' Nota: Si el servidor estaba inactivo, puede demorar unos minutos en reactivarse. Por favor, espera un momento e intenta nuevamente.';
       
       // Detectar el tipo específico de error de red
       if (error.code === 'ECONNREFUSED' || error.code === 'ERR_CONNECTION_REFUSED') {
-        networkErrorMessage = 'El servidor no está disponible o no se ha iniciado. Por favor, verifica que el backend esté corriendo.';
+        networkErrorMessage = 'El servidor no está disponible o no se ha iniciado.' + aclaracionServidor;
       } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        networkErrorMessage = 'La conexión con el servidor ha excedido el tiempo de espera. El servidor puede estar sobrecargado o no disponible.';
+        networkErrorMessage = 'La conexión con el servidor ha excedido el tiempo de espera.' + aclaracionServidor;
       } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
-        networkErrorMessage = 'Error de red. Verifica tu conexión a internet o que el servidor esté disponible.';
+        networkErrorMessage = 'Error de red. Verifica tu conexión a internet o que el servidor esté disponible.' + aclaracionServidor;
       } else if (error.code === 'ERR_INTERNET_DISCONNECTED') {
         networkErrorMessage = 'No hay conexión a internet. Por favor, verifica tu conexión.';
       } else if (!navigator.onLine) {
         networkErrorMessage = 'No hay conexión a internet. Por favor, verifica tu conexión.';
       } else {
         // Mensaje genérico pero más descriptivo
-        networkErrorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo y que tu conexión a internet funcione correctamente.';
+        networkErrorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo y que tu conexión a internet funcione correctamente.' + aclaracionServidor;
       }
       
       // Log detallado en desarrollo
