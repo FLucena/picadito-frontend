@@ -5,7 +5,7 @@ import { partidoSchema, type PartidoFormData } from '../utils/validators';
 import { Button } from './ui/Button';
 import { useSedes } from '../hooks/useSedes';
 import { useCategorias } from '../hooks/useCategorias';
-import type { PartidoResponseDTO } from '../types';
+import type { PartidoResponseDTO, SedeResponseDTO, CategoriaResponseDTO } from '../types';
 
 interface PartidoFormProps {
   partido?: PartidoResponseDTO;
@@ -132,7 +132,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
         >
           <option value="">Seleccionar sede (opcional)</option>
           {sedes && sedes.length > 0 ? (
-            sedes.map((sede) => (
+            sedes.map((sede: SedeResponseDTO) => (
               <option key={sede.id} value={sede.id}>
                 {sede.nombre || sede.direccion || `Sede #${sede.id}`}
               </option>
@@ -170,7 +170,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
         <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
           {Array.isArray(categorias) && categorias.length > 0 ? (
             <div className="space-y-2">
-              {categorias.map((categoria) => {
+              {categorias.map((categoria: CategoriaResponseDTO) => {
                 const isChecked = categoriaIds.includes(categoria.id);
                 return (
                   <label
