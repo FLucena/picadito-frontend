@@ -4,8 +4,10 @@ import { Navigation } from './components/layout/Navigation';
 import { Sidebar } from './components/layout/Sidebar';
 import { usePartidosGuardados } from './hooks/usePartidosGuardados';
 import { toast } from './utils/toast';
+import { isTokenValid } from './utils/tokenUtils';
 
 // Lazy load pages for code splitting
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const MenuPrincipalPage = lazy(() => import('./pages/MenuPrincipalPage').then(m => ({ default: m.MenuPrincipalPage })));
 const VerPartidosPage = lazy(() => import('./pages/VerPartidosPage').then(m => ({ default: m.VerPartidosPage })));
 const CreatePartidoPage = lazy(() => import('./pages/CreatePartidoPage').then(m => ({ default: m.CreatePartidoPage })));
@@ -33,11 +35,24 @@ export type Page =
   | 'partido-detail'
   | 'test-endpoints';
 
+interface UserData {
+  email: string;
+  nombre: string;
+  rol: string;
+  usuarioId?: number;
+}
+
 function App() {
+  // Check if user is authenticated - validate token exists and is not expired
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = localStorage.getItem('token');
+    return isTokenValid(token);
+  });
+
   const [currentPage, setCurrentPage] = useState<Page>('ver-partidos');
   const [selectedPartidoId, setSelectedPartidoId] = useState<number | null>(null);
   const [editingPartidoId, setEditingPartidoId] = useState<number | null>(null);
-  const [usuarioId] = useState<number>(1); // Demo: usuario ID 1
+  const [usuarioId] = useState<number>(1); // TODO: Get from user data or token
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>>([]);
   
@@ -50,6 +65,46 @@ function App() {
     });
     return unsubscribe;
   }, []);
+
+  // Validate token on mount and periodically
+  useEffect(() => {
+    const validateToken = () => {
+      const token = localStorage.getItem('token');
+      if (!isTokenValid(token)) {
+        // Token is invalid or expired - clear auth state
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userNombre');
+        localStorage.removeItem('userRol');
+        setIsAuthenticated(false);
+      }
+    };
+
+    // Validate immediately
+    validateToken();
+
+    // Validate every 5 minutes
+    const interval = setInterval(validateToken, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLoginSuccess = (_userData: UserData) => {
+    setIsAuthenticated(true);
+    setCurrentPage('ver-partidos');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userNombre');
+    localStorage.removeItem('userRol');
+    setIsAuthenticated(false);
+    setCurrentPage('ver-partidos');
+    toast.info('Sesión cerrada');
+  };
 
   const handleNavigate = (page: Page) => {
     setCurrentPage(page);
@@ -104,6 +159,19 @@ function App() {
   const showNavigation = currentPage !== 'menu';
   const showSidebar = currentPage !== 'menu';
 
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      }>
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar - Desktop */}
@@ -116,6 +184,7 @@ function App() {
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
           usuarioId={usuarioId}
           onNavigateToPartido={handleViewPartidoDetails}
+          onLogout={handleLogout}
         />
       )}
 

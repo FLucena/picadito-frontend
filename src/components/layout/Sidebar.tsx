@@ -10,7 +10,8 @@ import {
   X,
   Tag,
   BarChart3,
-  TestTube
+  TestTube,
+  LogOut
 } from 'lucide-react';
 import type { Page } from '../../App';
 import { Button } from '../ui/Button';
@@ -25,6 +26,7 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
   usuarioId?: number;
   onNavigateToPartido?: (partidoId: number) => void;
+  onLogout?: () => void;
 }
 
 interface NavItem {
@@ -42,7 +44,8 @@ export const Sidebar = ({
   isCollapsed = false,
   onToggleCollapse,
   usuarioId = 1,
-  onNavigateToPartido
+  onNavigateToPartido,
+  onLogout
 }: SidebarProps) => {
   const navItems: NavItem[] = [
     { id: 'ver-partidos', label: 'Ver Partidos', icon: Calendar, group: 'main' },
@@ -223,6 +226,21 @@ export const Sidebar = ({
           </>
         )}
       </nav>
+
+      {/* Logout Button */}
+      {onLogout && (
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={onLogout}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left text-red-600 hover:bg-red-50 ${
+              isCollapsed ? 'justify-center' : ''
+            }`}
+          >
+            <LogOut className="h-5 w-5 flex-shrink-0" />
+            {!isCollapsed && <span className="flex-1">Cerrar Sesión</span>}
+          </button>
+        </div>
+      )}
     </aside>
   );
 };

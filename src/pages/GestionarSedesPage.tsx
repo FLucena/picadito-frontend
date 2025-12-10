@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { SedeForm } from '../components/SedeForm';
@@ -14,7 +14,18 @@ export const GestionarSedesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [sedeEditando, setSedeEditando] = useState<SedeResponseDTO | null>(null);
   const [isCreatingRandom, setIsCreatingRandom] = useState(false);
-  const { data: sedes, isLoading } = useSedes();
+  const { data: sedesRaw, isLoading } = useSedes();
+  
+  // Normalize sedes to always be an array
+  const sedes = useMemo((): SedeResponseDTO[] => {
+    if (!sedesRaw) return [];
+    if (Array.isArray(sedesRaw)) return sedesRaw;
+    // Handle object with sedes property (SedesResponseDTO)
+    if (typeof sedesRaw === 'object' && 'sedes' in sedesRaw) {
+      return (sedesRaw as { sedes: SedeResponseDTO[] }).sedes || [];
+    }
+    return [];
+  }, [sedesRaw]);
   const createSede = useCreateSede();
   const updateSede = useUpdateSede();
   const deleteSede = useDeleteSede();
