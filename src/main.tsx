@@ -9,7 +9,23 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: (failureCount, error) => {
+        // No reintentar si es un error de conexión (servidor no disponible)
+        if (error instanceof Error) {
+          const errorMessage = error.message.toLowerCase();
+          if (
+            errorMessage.includes('no está disponible') ||
+            errorMessage.includes('no se ha iniciado') ||
+            errorMessage.includes('conexión a internet') ||
+            errorMessage.includes('no hay conexión')
+          ) {
+            return false;
+          }
+        }
+        // Reintentar máximo 1 vez para otros errores
+        return failureCount < 1;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
   },
 });

@@ -14,7 +14,7 @@ export const GestionarSedesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [sedeEditando, setSedeEditando] = useState<SedeResponseDTO | null>(null);
   const [isCreatingRandom, setIsCreatingRandom] = useState(false);
-  const { data: sedesRaw, isLoading } = useSedes();
+  const { data: sedesRaw, isLoading, error: sedesError } = useSedes();
   
   // Normalize sedes to always be an array
   const sedes = useMemo((): SedeResponseDTO[] => {
@@ -125,6 +125,23 @@ export const GestionarSedesPage = () => {
           <div className="text-center py-12">
             <p className="text-gray-500">Cargando sedes...</p>
           </div>
+        ) : sedesError ? (
+          <Card className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+              <MapPin className="h-8 w-8 text-red-600" />
+            </div>
+            <p className="text-red-600 text-lg font-semibold mb-2">Error al cargar sedes</p>
+            <p className="text-gray-600 text-sm mb-4">
+              {sedesError instanceof Error ? sedesError.message : 'No se pudieron cargar las sedes. Por favor, intenta nuevamente.'}
+            </p>
+            <Button
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="flex items-center gap-2 mx-auto"
+            >
+              Reintentar
+            </Button>
+          </Card>
         ) : !sedes || sedes.length === 0 ? (
           <Card className="text-center py-12">
             <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />

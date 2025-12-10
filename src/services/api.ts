@@ -346,10 +346,42 @@ apiClient.interceptors.response.use(
       
       return Promise.reject(new Error(errorMessage));
     }
+    
+    // Manejo de errores de red (servidor no responde, no está levantado, timeout, etc.)
     if (error.request) {
-      return Promise.reject(new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.'));
+      let networkErrorMessage = 'No se pudo conectar con el servidor.';
+      
+      // Detectar el tipo específico de error de red
+      if (error.code === 'ECONNREFUSED' || error.code === 'ERR_CONNECTION_REFUSED') {
+        networkErrorMessage = 'El servidor no está disponible o no se ha iniciado. Por favor, verifica que el backend esté corriendo.';
+      } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        networkErrorMessage = 'La conexión con el servidor ha excedido el tiempo de espera. El servidor puede estar sobrecargado o no disponible.';
+      } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        networkErrorMessage = 'Error de red. Verifica tu conexión a internet o que el servidor esté disponible.';
+      } else if (error.code === 'ERR_INTERNET_DISCONNECTED') {
+        networkErrorMessage = 'No hay conexión a internet. Por favor, verifica tu conexión.';
+      } else if (!navigator.onLine) {
+        networkErrorMessage = 'No hay conexión a internet. Por favor, verifica tu conexión.';
+      } else {
+        // Mensaje genérico pero más descriptivo
+        networkErrorMessage = 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo y que tu conexión a internet funcione correctamente.';
+      }
+      
+      // Log detallado en desarrollo
+      logger.error('Network Error:', {
+        code: error.code,
+        message: error.message,
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+      });
+      
+      return Promise.reject(new Error(networkErrorMessage));
     }
-    return Promise.reject(error);
+    
+    // Error desconocido
+    logger.error('Unknown Error:', error);
+    return Promise.reject(error instanceof Error ? error : new Error('Error desconocido al realizar la petición.'));
   }
 );
 
