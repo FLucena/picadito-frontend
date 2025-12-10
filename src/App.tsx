@@ -8,6 +8,7 @@ import { isTokenValid } from './utils/tokenUtils';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const MenuPrincipalPage = lazy(() => import('./pages/MenuPrincipalPage').then(m => ({ default: m.MenuPrincipalPage })));
 const VerPartidosPage = lazy(() => import('./pages/VerPartidosPage').then(m => ({ default: m.VerPartidosPage })));
 const CreatePartidoPage = lazy(() => import('./pages/CreatePartidoPage').then(m => ({ default: m.CreatePartidoPage })));
@@ -48,6 +49,9 @@ function App() {
     const token = localStorage.getItem('token');
     return isTokenValid(token);
   });
+  
+  // Estado para mostrar login o registro
+  const [showRegister, setShowRegister] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<Page>('ver-partidos');
   const [selectedPartidoId, setSelectedPartidoId] = useState<number | null>(null);
@@ -93,6 +97,13 @@ function App() {
   const handleLoginSuccess = (_userData: UserData) => {
     setIsAuthenticated(true);
     setCurrentPage('ver-partidos');
+    setShowRegister(false);
+  };
+
+  const handleRegisterSuccess = (_userData: UserData) => {
+    setIsAuthenticated(true);
+    setCurrentPage('ver-partidos');
+    setShowRegister(false);
   };
 
   const handleLogout = () => {
@@ -159,7 +170,7 @@ function App() {
   const showNavigation = currentPage !== 'menu';
   const showSidebar = currentPage !== 'menu';
 
-  // Show login page if not authenticated
+  // Show login or register page if not authenticated
   if (!isAuthenticated) {
     return (
       <Suspense fallback={
@@ -167,7 +178,17 @@ function App() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       }>
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
+        {showRegister ? (
+          <RegisterPage 
+            onRegisterSuccess={handleRegisterSuccess}
+            onBackToLogin={() => setShowRegister(false)}
+          />
+        ) : (
+          <LoginPage 
+            onLoginSuccess={handleLoginSuccess}
+            onShowRegister={() => setShowRegister(true)}
+          />
+        )}
       </Suspense>
     );
   }

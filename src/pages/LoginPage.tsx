@@ -7,9 +7,10 @@ import { LogIn } from 'lucide-react';
 
 interface LoginPageProps {
   onLoginSuccess: (userData: { email: string; nombre: string; rol: string; usuarioId?: number }) => void;
+  onShowRegister?: () => void;
 }
 
-export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
+export const LoginPage = ({ onLoginSuccess, onShowRegister }: LoginPageProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +107,18 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>¿No tienes una cuenta?</p>
-          <p className="text-primary-600 mt-1">Contacta al administrador para registrarte</p>
+          <button
+            type="button"
+            onClick={() => {
+              if (onShowRegister) {
+                onShowRegister();
+              }
+            }}
+            className="text-primary-600 hover:text-primary-700 font-medium mt-1"
+            disabled={isLoading}
+          >
+            Regístrate aquí
+          </button>
         </div>
       </Card>
     </div>
