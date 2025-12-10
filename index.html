@@ -5,9 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Security Headers -->
-    <!-- X-Frame-Options: Prevent clickjacking -->
-    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <!-- Security Headers (Meta Tags) -->
+    <!-- Note: X-Frame-Options and frame-ancestors only work as HTTP headers, not meta tags -->
+    <!-- These are configured in the backend (SecurityHeadersFilter.java) -->
+    <!-- The following meta tags serve as fallback if frontend is served from a different server -->
     
     <!-- X-Content-Type-Options: Prevent MIME type sniffing -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
@@ -18,10 +19,10 @@
     <!-- Permissions Policy: Control browser features -->
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
     
-    <!-- Content Security Policy -->
+    <!-- Content Security Policy (without frame-ancestors - that only works as HTTP header) -->
     <!-- Note: 'unsafe-inline' and 'unsafe-eval' are required for Vite in development -->
-    <!-- In production, consider tightening this policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://picadito-backend.onrender.com https://unpicadito.vercel.app; frame-ancestors 'none';" />
+    <!-- frame-ancestors is handled by backend HTTP headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://picadito-backend.onrender.com https://unpicadito.vercel.app;" />
     
     <title>picadito-frontend</title>
   </head>
