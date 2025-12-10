@@ -17,8 +17,12 @@ interface PartidoFormProps {
 export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: PartidoFormProps) => {
   const [inscribirseTambien, setInscribirseTambien] = useState(false);
   const isCreating = !partido;
-  const { data: sedes } = useSedes();
-  const { data: categorias } = useCategorias();
+  const { data: sedesRaw } = useSedes();
+  const { data: categoriasRaw } = useCategorias();
+
+  // Normalizar datos para asegurar que sean arrays
+  const sedes = Array.isArray(sedesRaw) ? sedesRaw : (Array.isArray((sedesRaw as any)?.sedes) ? (sedesRaw as any).sedes : []);
+  const categorias = Array.isArray(categoriasRaw) ? categoriasRaw : (Array.isArray((categoriasRaw as any)?.categorias) ? (categoriasRaw as any).categorias : []);
 
   const {
     register,
@@ -127,11 +131,15 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
         >
           <option value="">Seleccionar sede (opcional)</option>
-          {sedes?.map((sede) => (
-            <option key={sede.id} value={sede.id}>
-              {sede.nombre || sede.direccion || `Sede #${sede.id}`}
-            </option>
-          ))}
+          {sedes && sedes.length > 0 ? (
+            sedes.map((sede) => (
+              <option key={sede.id} value={sede.id}>
+                {sede.nombre || sede.direccion || `Sede #${sede.id}`}
+              </option>
+            ))
+          ) : (
+            <option value="" disabled>No hay sedes disponibles</option>
+          )}
         </select>
         {errors.sedeId && (
           <p className="mt-1 text-sm text-red-600">{errors.sedeId.message}</p>
@@ -160,7 +168,7 @@ export const PartidoForm = ({ partido, onSubmit, onCancel, isLoading = false }: 
           Categorías
         </label>
         <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
-          {categorias && categorias.length > 0 ? (
+          {Array.isArray(categorias) && categorias.length > 0 ? (
             <div className="space-y-2">
               {categorias.map((categoria) => {
                 const isChecked = categoriaIds.includes(categoria.id);
